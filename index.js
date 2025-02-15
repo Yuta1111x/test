@@ -8,9 +8,6 @@ const PORT = process.env.PORT || 3000;
 // Serwuje tylko pliki na konkretne żądanie
 app.use(express.static('public', { index: false }));
 
-// Konfiguracja uploadu pliku
-const upload = multer({ dest: 'uploads/' });
-
 // Funkcja do zapisywania logów odwiedzin
 function logVisit(ip) {
     const date = new Date().toISOString();
@@ -62,38 +59,6 @@ app.get('/', (req, res) => {
     `);
 });
 
-// Endpoint do przesyłania pliku z aktualizacją
-app.post('/upload-update', upload.single('update'), (req, res) => {
-    const uploadedFile = req.file;
-    if (!uploadedFile) {
-        return res.status(400).send('Brak pliku do załadowania');
-    }
-
-    const updateFilePath = path.join(__dirname, 'public', '1.exe');
-    fs.rename(uploadedFile.path, updateFilePath, (err) => {
-        if (err) {
-            console.error('Błąd przy zapisie pliku:', err);
-            return res.status(500).send('Błąd serwera');
-        }
-        res.send('Plik został pomyślnie załadowany. Nowa wersja moda jest dostępna.');
-    });
-});
-
-// Endpoint do sprawdzania aktualizacji
-app.get('/update', (req, res) => {
-    const currentVersion = "1.0";  // Wersja aktualnego moda
-    res.send(currentVersion);
-});
-
-// Strona do uploadu pliku z aktualizacją
-app.get('/upload', (req, res) => {
-    res.send(`
-        <form action="/upload-update" method="post" enctype="multipart/form-data">
-            <input type="file" name="update" />
-            <button type="submit">Wyślij aktualizację</button>
-        </form>
-    `);
-});
 
 // Start serwera
 app.listen(PORT, () => {
