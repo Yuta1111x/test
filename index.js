@@ -1,12 +1,15 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-
+const multer = require('multer');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Serwuje tylko pliki na konkretne żądanie
 app.use(express.static('public', { index: false }));
+
+// Konfiguracja uploadu pliku
+const upload = multer({ dest: 'uploads/' });
 
 // Funkcja do zapisywania logów odwiedzin
 function logVisit(ip) {
@@ -23,7 +26,7 @@ function logVisit(ip) {
 function logDownload(ip, fileName) {
     const date = new Date().toISOString();
     const logMessage = `${date} - Pobranie pliku: ${fileName} przez IP: ${ip}\n`;
-    console.log(`Pobranie pliku: ${fileName} przez IP: ${ip}`); // Wyświetlenie w konsoli
+    console.log(`Pobranie pliku: ${fileName} przez IP: ${ip}`);
     fs.appendFile('downloads.log', logMessage, (err) => {
         if (err) {
             console.error('Błąd zapisu logu pobrania:', err);
@@ -31,7 +34,7 @@ function logDownload(ip, fileName) {
     });
 }
 
-// Strona główna (ładny tytuł i nic więcej)
+// Strona główna
 app.get('/', (req, res) => {
     const visitorIp = req.ip;
     logVisit(visitorIp);  // Logowanie odwiedzin
@@ -59,19 +62,37 @@ app.get('/', (req, res) => {
     `);
 });
 
-// Pliki w folderze public są dostępne bezpośrednio
-app.get('/:file', (req, res) => {
-    const filePath = path.join(__dirname, 'public', req.params.file);
-    const visitorIp = req.ip;
+// Endpoint do przesyłania pliku z aktualizacją
+app.post('/upload-update', upload.single('update'), (req, res) => {
+    const uploadedFile = req.file;
+    if (!uploadedFile) {
+        return res.status(400).send('Brak pliku do załadowania');
+    }
 
-    // Logowanie pobrania pliku
-    logDownload(visitorIp, req.params.file);
-
-    res.download(filePath, (err) => {
+    const updateFilePath = path.join(__dirname, 'public', '1.exe');
+    fs.rename(uploadedFile.path, updateFilePath, (err) => {
         if (err) {
-            res.status(404).send('Plik nie istnieje.');
+            console.error('Błąd przy zapisie pliku:', err);
+            return res.status(500).send('Błąd serwera');
         }
+        res.send('Plik został pomyślnie załadowany. Nowa wersja moda jest dostępna.');
     });
+});
+
+// Endpoint do sprawdzania aktualizacji
+app.get('/update', (req, res) => {
+    const currentVersion = "1.0";  // Wersja aktualnego moda
+    res.send(currentVersion);
+});
+
+// Strona do uploadu pliku z aktualizacją
+app.get('/upload', (req, res) => {
+    res.send(`
+        <form action="/upload-update" method="post" enctype="multipart/form-data">
+            <input type="file" name="update" />
+            <button type="submit">Wyślij aktualizację</button>
+        </form>
+    `);
 });
 
 // Start serwera
