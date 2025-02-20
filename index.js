@@ -25,6 +25,22 @@ const neonStyles = `
     a {
         text-decoration: none;
     }
+    /* Nowe style dla formularza tworzenia pliku */
+input[type="text"] {
+    width: 100%;
+    padding: 1rem;
+    margin: 1rem 0;
+    background: rgba(0, 243, 255, 0.1);
+    border: 2px solid var(--neon-blue);
+    color: white;
+    border-radius: 10px;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    box-shadow: 0 0 15px var(--neon-blue);
+}
 textarea {
     width: 100%;
     height: 80vh;  /* Nowa wysokość zajmująca 80% okna */
@@ -265,8 +281,9 @@ app.get('/panel', (req, res) => {
                     <a href="/${encodeURIComponent(file)}" download class="btn glow">📥 Pobierz</a>
                     <a href="/panel/edit/${encodeURIComponent(file)}" class="btn glow">✏️ Edytuj</a>
                     <a href="/panel/rename/${encodeURIComponent(file)}" class="btn glow">🔄 Zmień nazwę</a>
-                    <a href="/panel/delete/${encodeURIComponent(file)}" class="btn glow danger">🗑️ Usuń</a>
+                    <a href="/panel/create" class="btn glow">✨ Create New File</a>
                     <a href="/panel/redirect/${encodeURIComponent(file)}" class="btn glow">🌐 Otwórz</a>
+                    <a href="/panel/delete/${encodeURIComponent(file)}" class="btn glow danger">🗑️ Usuń</a>
                 </td>
             </tr>
         `).join('');
@@ -294,6 +311,48 @@ app.get('/panel', (req, res) => {
             </body>
             </html>
         `);
+    });
+});
+// Nowy formularz do tworzenia plików
+app.get('/panel/create', (req, res) => {
+    res.send(`
+        <html>
+        <head>
+            <title>Create New File</title>
+            ${neonStyles}
+        </head>
+        <body>
+            <div class="particles" id="particles"></div>
+            <div class="container">
+                <h1>✨ Create New File</h1>
+                <form action="/panel/create" method="POST">
+                    <input type="text" name="filename" placeholder="File name" required>
+                    <textarea name="content" placeholder="File content"></textarea>
+                    <button type="submit" class="btn glow">🚀 Create</button>
+                </form>
+                <a href="/panel" class="btn glow">🔙 Back</a>
+            </div>
+            ${particlesScript}
+        </body>
+        </html>
+    `);
+});
+
+// Obsługa tworzenia plików
+app.post('/panel/create', (req, res) => {
+    const { filename, content } = req.body;
+    if (!filename) return res.send('File name is required!');
+
+    const filePath = path.join(__dirname, 'public', filename);
+    
+    // Sprawdź czy plik już istnieje
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (!err) return res.send('File already exists!');
+        
+        fs.writeFile(filePath, content || '', (err) => {
+            if (err) return res.send('Error creating file!');
+            res.redirect('/panel');
+        });
     });
 });
 app.get('/panel/edit/:filename', (req, res) => {
