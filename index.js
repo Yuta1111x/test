@@ -20,7 +20,38 @@ function logVisit(ip) {
 const neonStyles = `
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
-        
+        input[type="file"] {
+    width: 100%;
+    padding: 1rem;
+    margin: 1rem 0;
+    background: rgba(0, 243, 255, 0.1);
+    border: 2px solid var(--neon-blue);
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    transition: all 0.3s ease;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+    background: var(--neon-blue);
+    color: black;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+input[type="file"]:hover,
+input[type="file"]::-webkit-file-upload-button:hover {
+    background: rgba(0, 243, 255, 0.3);
+    box-shadow: 0 0 15px var(--neon-blue);
+    transform: translateY(-2px);
+}
+
         :root {
             --neon-blue: #00f3ff;
             --neon-pink: #ff00ff;
@@ -188,13 +219,13 @@ app.get('/', (req, res) => {
     res.send(`
         <html>
         <head>
-            <title>NEON PORTAL</title>
+            <title>FILES PORTAL</title>
             ${neonStyles}
         </head>
         <body>
             <div class="particles" id="particles"></div>
             <div class="container">
-                <h1>🚀 Welcome to Neon Zone! 🌌</h1>
+                <h1>🚀 Welcome to Files Zone! 🌌</h1>
             </div>
             ${particlesScript}
         </body>
