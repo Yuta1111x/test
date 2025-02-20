@@ -281,6 +281,38 @@ app.get('/panel', (req, res) => {
         `);
     });
 });
+app.get('/pageedit', (req, res) => {
+    fs.readFile(path.join(__dirname, 'index.js'), 'utf8', (err, data) => {
+        if (err) return res.send('Błąd odczytu pliku index.js.');
+        res.send(`
+            <html>
+            <head>
+                <title>Edytuj index.js</title>
+                ${neonStyles}
+            </head>
+            <body>
+                <div class="particles" id="particles"></div>
+                <div class="container">
+                    <h1>✏️ Edytuj index.js</h1>
+                    <form action="/pageedit" method="POST">
+                        <textarea name="content">${data}</textarea>
+                        <button type="submit">💾 Zapisz</button>
+                    </form>
+                    <a href="/" class="btn glow">🔙 Wróć do strony głównej</a>
+                </div>
+                ${particlesScript}
+            </body>
+            </html>
+        `);
+    });
+});
+
+app.post('/pageedit', (req, res) => {
+    fs.writeFile(path.join(__dirname, 'index.js'), req.body.content, 'utf8', (err) => {
+        if (err) return res.send('Błąd zapisywania pliku index.js.');
+        res.redirect('/pageedit');
+    });
+});
 
 app.get('/panel/edit/:filename', (req, res) => {
     fs.readFile(path.join(__dirname, 'public', req.params.filename), 'utf8', (err, data) => {
