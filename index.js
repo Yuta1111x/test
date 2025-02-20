@@ -25,65 +25,9 @@ app.use(express.json());
 // Serwowanie plików statycznych – pliki z katalogu "public" będą dostępne pod rootem ("/")
 app.use(express.static('public', { index: false }));
 
-// Funkcja logowania odwiedzin
-function logVisit(ip) {
-    const date = new Date().toISOString();
-    const logMessage = `${date} - Odwiedzin IP: ${ip}\n`;
-    fs.appendFile('visits.log', logMessage, (err) => {
-        if (err) console.error('Błąd zapisu logu:', err);
-    });
-}
-
-// Middleware sprawdzający autoryzację
-function checkAuth(req, res, next) {
-    if (req.session.loggedIn) {
-        next();
-    } else {
-        res.redirect('/panel/login');
-    }
-}
-
-// Strona logowania
-app.get('/panel/login', (req, res) => {
-    res.send(`
-        <html>
-        <head>
-            <title>Panel logowania</title>
-            <style>
-                body { background: #f0f0f0; font-family: Arial, sans-serif; }
-                .login-container { max-width: 300px; margin: 100px auto; padding: 20px; background: white; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-                input { width: 100%; padding: 10px; margin: 5px 0; }
-                button { width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 3px; cursor: pointer; }
-                button:hover { background: #45a049; }
-            </style>
-        </head>
-        <body>
-            <div class="login-container">
-                <h2>Logowanie</h2>
-                <form action="/panel/login" method="POST">
-                    <input type="text" name="username" placeholder="Nazwa użytkownika" required>
-                    <input type="password" name="password" placeholder="Hasło" required>
-                    <button type="submit">Zaloguj</button>
-                </form>
-            </div>
-        </body>
-        </html>
-    `);
-});
-
-// Obsługa logowania
-app.post('/panel/login', (req, res) => {
-    const { username, password } = req.body;
-    if (username === 'AQS' && password === 'AQS') {
-        req.session.loggedIn = true;
-        res.redirect('/panel/control');
-    } else {
-        res.send('Nieprawidłowe dane logowania.');
-    }
-});
 
 // Panel kontrolny – wyświetla listę plików oraz dostępne akcje
-app.get('/panel/control', checkAuth, (req, res) => {
+app.get('/panel', (req, res) => {
     fs.readdir('public', (err, files) => {
         if (err) return res.send('Błąd wczytywania plików.');
         
@@ -146,27 +90,27 @@ app.get('/panel/control', checkAuth, (req, res) => {
 });
 
 // Obsługa uploadu plików
-app.post('/panel/upload', checkAuth, upload.single('file'), (req, res) => {
-    res.redirect('/panel/control');
+app.post('/panel/upload', upload.single('file'), (req, res) => {
+    res.redirect('/panel');
 });
 
 // Przekierowanie do wyświetlenia pliku – teraz bez prefiksu /public
-app.get('/panel/redirect/:filename', checkAuth, (req, res) => {
+app.get('/panel/redirect/:filename', (req, res) => {
     const file = req.params.filename;
     res.redirect(`/${file}`);
 });
 
 // Usuwanie pliku
-app.get('/panel/delete/:filename', checkAuth, (req, res) => {
+app.get('/panel/delete/:filename', (req, res) => {
     const filePath = path.join(__dirname, 'public', req.params.filename);
     fs.unlink(filePath, (err) => {
         if (err) return res.send('Błąd usuwania pliku.');
-        res.redirect('/panel/control');
+        res.redirect('/panel');
     });
 });
 
 // Edycja pliku – formularz do edycji (tylko dla plików tekstowych)
-app.get('/panel/edit/:filename', checkAuth, (req, res) => {
+app.get('/panel/edit/:filename', (req, res) => {
     const filePath = path.join(__dirname, 'public', req.params.filename);
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) return res.send('Błąd odczytu pliku. Upewnij się, że plik jest tekstowy.');
@@ -191,7 +135,7 @@ app.get('/panel/edit/:filename', checkAuth, (req, res) => {
                         <button type="submit">Zapisz zmiany</button>
                     </form>
                     <br>
-                    <a href="/panel/control">Powrót do panelu</a>
+                    <a href="/panel">Powrót do panelu</a>
                 </div>
             </body>
             </html>
@@ -200,17 +144,17 @@ app.get('/panel/edit/:filename', checkAuth, (req, res) => {
 });
 
 // Obsługa zapisu edytowanego pliku
-app.post('/panel/edit/:filename', checkAuth, (req, res) => {
+app.post('/panel/edit/:filename', (req, res) => {
     const filePath = path.join(__dirname, 'public', req.params.filename);
     const newContent = req.body.content;
     fs.writeFile(filePath, newContent, 'utf8', (err) => {
         if (err) return res.send('Błąd zapisu pliku.');
-        res.redirect('/panel/control');
+        res.redirect('/panel');
     });
 });
 
 // Zmiana nazwy pliku – formularz
-app.get('/panel/rename/:filename', checkAuth, (req, res) => {
+app.get('/panel/rename/:filename', (req, res) => {
     res.send(`
         <html>
         <head>
@@ -232,7 +176,7 @@ app.get('/panel/rename/:filename', checkAuth, (req, res) => {
                     <button type="submit">Zmień nazwę</button>
                 </form>
                 <br>
-                <a href="/panel/control">Powrót do panelu</a>
+                <a href="/panel">Powrót do panelu</a>
             </div>
         </body>
         </html>
@@ -240,12 +184,12 @@ app.get('/panel/rename/:filename', checkAuth, (req, res) => {
 });
 
 // Obsługa zmiany nazwy pliku
-app.post('/panel/rename/:filename', checkAuth, (req, res) => {
+app.post('/panel/rename/:filename', (req, res) => {
     const oldPath = path.join(__dirname, 'public', req.params.filename);
     const newPath = path.join(__dirname, 'public', req.body.newName);
     fs.rename(oldPath, newPath, (err) => {
         if (err) return res.send('Błąd zmiany nazwy pliku.');
-        res.redirect('/panel/control');
+        res.redirect('/panel');
     });
 });
 
