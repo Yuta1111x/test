@@ -232,7 +232,6 @@ const particlesScript = `
     </script>
 `;
 
-// Routes
 app.get('/', (req, res) => {
     logVisit(req.ip);
     res.send(`
@@ -245,6 +244,9 @@ app.get('/', (req, res) => {
             <div class="particles" id="particles"></div>
             <div class="container">
                 <h1>🚀 Welcome to Files Zone! 🌌</h1>
+                <div style="text-align: center;">
+                    <button onclick="window.location.reload();" class="btn glow">🔄 Refresh</button>
+                </div>
             </div>
             ${particlesScript}
         </body>
