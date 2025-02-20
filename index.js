@@ -329,6 +329,7 @@ app.post('/pageedit', (req, res) => {
     });
 });
 
+
 app.get('/panel/edit/:filename', (req, res) => {
     fs.readFile(path.join(__dirname, 'public', req.params.filename), 'utf8', (err, data) => {
         if (err) return res.send('Błąd odczytu pliku.');
