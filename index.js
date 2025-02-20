@@ -22,7 +22,7 @@ const upload = multer({ dest: 'public/' });
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Serwowanie plików statycznych
+// Serwowanie plików statycznych – pliki z katalogu "public" będą dostępne pod rootem ("/")
 app.use(express.static('public', { index: false }));
 
 // Funkcja logowania odwiedzin
@@ -93,7 +93,7 @@ app.get('/panel/control', checkAuth, (req, res) => {
                 <td>${file}</td>
                 <td>
                     <a href="/panel/redirect/${encodeURIComponent(file)}" class="btn">Przekieruj</a>
-                    <a href="/public/${encodeURIComponent(file)}" download class="btn">Pobierz</a>
+                    <a href="/${encodeURIComponent(file)}" download class="btn">Pobierz</a>
                     <a href="/panel/edit/${encodeURIComponent(file)}" class="btn">Edytuj</a>
                     <a href="/panel/rename/${encodeURIComponent(file)}" class="btn">Zmień nazwę</a>
                     <a href="/panel/delete/${encodeURIComponent(file)}" class="btn btn-danger">Usuń</a>
@@ -150,10 +150,10 @@ app.post('/panel/upload', checkAuth, upload.single('file'), (req, res) => {
     res.redirect('/panel/control');
 });
 
-// Przekierowanie do wyświetlenia pliku
+// Przekierowanie do wyświetlenia pliku – teraz bez prefiksu /public
 app.get('/panel/redirect/:filename', checkAuth, (req, res) => {
     const file = req.params.filename;
-    res.redirect(`/public/${file}`);
+    res.redirect(`/${file}`);
 });
 
 // Usuwanie pliku
