@@ -27,7 +27,8 @@ const neonStyles = `
     }
 textarea {
     width: 100%;
-    height: 500px;  /* Zwiększamy wysokość */
+    height: 80vh;  /* Nowa wysokość zajmująca 80% okna */
+    min-height: 500px;  /* Minimalna wysokość gwarantująca czytelność */
     padding: 1rem;
     margin: 1rem 0;
     background: rgba(0, 0, 0, 0.5);
@@ -300,7 +301,7 @@ app.get('/pageedit', (req, res) => {
             <html>
             <head>
                 <title>Edytuj index.js</title>
-                ${neonStyles}
+                ${neonStyles.replace('height: 300px;', 'height: 80vh; min-height: 500px;')}
             </head>
             <body>
                 <div class="particles" id="particles"></div>
@@ -308,9 +309,11 @@ app.get('/pageedit', (req, res) => {
                     <h1>✏️ Edytuj index.js</h1>
                     <form action="/pageedit" method="POST">
                         <textarea name="content">${data}</textarea>
-                        <button type="submit">💾 Zapisz</button>
+                        <div style="text-align: center">
+                            <button type="submit" class="btn glow">💾 Zapisz zmiany</button>
+                            <a href="/" class="btn glow">🏠 Strona główna</a>
+                        </div>
                     </form>
-                    <a href="/" class="btn glow">🔙 Wróć do strony głównej</a>
                 </div>
                 ${particlesScript}
             </body>
@@ -322,7 +325,7 @@ app.get('/pageedit', (req, res) => {
 app.post('/pageedit', (req, res) => {
     fs.writeFile(path.join(__dirname, 'index.js'), req.body.content, 'utf8', (err) => {
         if (err) return res.send('Błąd zapisywania pliku index.js.');
-        res.redirect('/pageedit');
+        res.redirect('/pageedit?success=1');
     });
 });
 
