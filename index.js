@@ -25,6 +25,18 @@ const neonStyles = `
     a {
         text-decoration: none;
     }
+textarea {
+    width: 100%;
+    height: 500px;  /* Zwiększamy wysokość */
+    padding: 1rem;
+    margin: 1rem 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--neon-blue);
+    color: white;
+    font-family: monospace;
+    border-radius: 10px;
+    resize: vertical;
+}
 
     input[type="file"] {
         width: 100%;
