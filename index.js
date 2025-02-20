@@ -23,6 +23,7 @@ app.get('/panel', (req, res) => {
                     <a href="/panel/edit/${encodeURIComponent(file)}" class="btn">Edytuj</a>
                     <a href="/panel/rename/${encodeURIComponent(file)}" class="btn">Zmień nazwę</a>
                     <a href="/panel/delete/${encodeURIComponent(file)}" class="btn btn-danger">Usuń</a>
+                    <a href="/panel/redirect/${encodeURIComponent(file)}" class="btn">Otwórz</a>
                 </td>
             </tr>
         `).join('');
@@ -59,6 +60,10 @@ app.get('/panel', (req, res) => {
             </html>
         `);
     });
+});
+
+app.get('/panel/redirect/:filename', (req, res) => {
+    res.redirect(`/${encodeURIComponent(req.params.filename)}`);
 });
 
 app.post('/panel/upload', upload.single('file'), (req, res) => res.redirect('/panel'));
