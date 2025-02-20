@@ -18,167 +18,173 @@ function logVisit(ip) {
 
 // Styl globalny i funkcje pomocnicze
 const neonStyles = `
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
-        input[type="file"] {
-    width: 100%;
-    padding: 1rem;
-    margin: 1rem 0;
-    background: rgba(0, 243, 255, 0.1);
-    border: 2px solid var(--neon-blue);
-    color: white;
-    border-radius: 10px;
-    cursor: pointer;
-    font-family: 'Rajdhani', sans-serif;
-    transition: all 0.3s ease;
-}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
+    
+    /* Usunięcie podkreślenia tekstu wszędzie */
+    a {
+        text-decoration: none;
+    }
 
-input[type="file"]::-webkit-file-upload-button {
-    background: var(--neon-blue);
-    color: black;
-    padding: 1rem 2rem;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
+    input[type="file"] {
+        width: 100%;
+        padding: 1rem;
+        margin: 1rem 0;
+        background: rgba(0, 243, 255, 0.1);
+        border: 2px solid var(--neon-blue);
+        color: white;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: 'Rajdhani', sans-serif;
+        transition: all 0.3s ease;
+    }
 
-input[type="file"]:hover,
-input[type="file"]::-webkit-file-upload-button:hover {
-    background: rgba(0, 243, 255, 0.3);
-    box-shadow: 0 0 15px var(--neon-blue);
-    transform: translateY(-2px);
-}
+    input[type="file"]::-webkit-file-upload-button {
+        background: var(--neon-blue);
+        color: black;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
 
-        :root {
-            --neon-blue: #00f3ff;
-            --neon-pink: #ff00ff;
-            --dark-bg: #0a0a1a;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-        }
+    input[type="file"]:hover,
+    input[type="file"]::-webkit-file-upload-button:hover {
+        background: rgba(0, 243, 255, 0.3);
+        box-shadow: 0 0 15px var(--neon-blue);
+        transform: translateY(-2px);
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    :root {
+        --neon-blue: #00f3ff;
+        --neon-pink: #ff00ff;
+        --dark-bg: #0a0a1a;
+        --glass-bg: rgba(255, 255, 255, 0.05);
+    }
 
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            background: var(--dark-bg);
-            color: white;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
-        .particles {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
+    body {
+        font-family: 'Rajdhani', sans-serif;
+        background: var(--dark-bg);
+        color: white;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
 
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
-        }
+    .particles {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
 
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 2.5em;
-            background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
-            animation: neonPulse 2s infinite alternate;
-        }
+    .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+    }
 
-        .btn {
-            display: inline-block;
-            padding: 0.5rem 1.2rem;
-            margin: 0.3rem;
-            border: none;
-            border-radius: 5px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
+    h1 {
+        font-family: 'Orbitron', sans-serif;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 2.5em;
+        background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        animation: neonPulse 2s infinite alternate;
+    }
 
-        .btn.glow {
-            background: rgba(0, 243, 255, 0.15);
-            color: var(--neon-blue);
-            border: 1px solid var(--neon-blue);
-        }
+    .btn {
+        display: inline-block;
+        padding: 0.5rem 1.2rem;
+        margin: 0.3rem;
+        border: none;
+        border-radius: 5px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
 
-        .btn.glow:hover {
-            background: rgba(0, 243, 255, 0.3);
-            box-shadow: 0 0 15px var(--neon-blue);
-            transform: translateY(-2px);
-        }
+    .btn.glow {
+        background: rgba(0, 243, 255, 0.15);
+        color: var(--neon-blue);
+        border: 1px solid var(--neon-blue);
+    }
 
-        .btn.glow.danger {
-            background: rgba(255, 0, 255, 0.15);
-            color: var(--neon-pink);
-            border: 1px solid var(--neon-pink);
-        }
+    .btn.glow:hover {
+        background: rgba(0, 243, 255, 0.3);
+        box-shadow: 0 0 15px var(--neon-blue);
+        transform: translateY(-2px);
+    }
 
-        @keyframes neonPulse {
-            from { text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
-            to { text-shadow: 0 0 20px rgba(0, 243, 255, 0.8); }
-        }
+    .btn.glow.danger {
+        background: rgba(255, 0, 255, 0.15);
+        color: var(--neon-pink);
+        border: 1px solid var(--neon-pink);
+    }
 
-        .fade-in { animation: fadeIn 0.5s ease forwards; opacity: 0; }
-        @keyframes fadeIn { to { opacity: 1; } }
+    @keyframes neonPulse {
+        from { text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
+        to { text-shadow: 0 0 20px rgba(0, 243, 255, 0.8); }
+    }
 
-        textarea {
-            width: 100%;
-            height: 300px;
-            padding: 1rem;
-            margin: 1rem 0;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid var(--neon-blue);
-            color: white;
-            font-family: monospace;
-            border-radius: 10px;
-            resize: vertical;
-        }
+    .fade-in { animation: fadeIn 0.5s ease forwards; opacity: 0; }
+    @keyframes fadeIn { to { opacity: 1; } }
 
-        form button[type="submit"] {
-            background: var(--neon-blue);
-            color: black;
-            padding: 0.8rem 2rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
+    textarea {
+        width: 100%;
+        height: 300px;
+        padding: 1rem;
+        margin: 1rem 0;
+        background: rgba(0, 0, 0, 0.5);
+        border: 2px solid var(--neon-blue);
+        color: white;
+        font-family: monospace;
+        border-radius: 10px;
+        resize: vertical;
+    }
 
-        input[type="text"], input[type="file"] {
-            width: 100%;
-            padding: 1rem;
-            margin: 1rem 0;
-            background: rgba(0, 243, 255, 0.1);
-            border: 2px solid var(--neon-blue);
-            color: white;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-    </style>
+    form button[type="submit"] {
+        background: var(--neon-blue);
+        color: black;
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    input[type="text"], input[type="file"] {
+        width: 100%;
+        padding: 1rem;
+        margin: 1rem 0;
+        background: rgba(0, 243, 255, 0.1);
+        border: 2px solid var(--neon-blue);
+        color: white;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+</style>
 `;
 
 const particlesScript = `
