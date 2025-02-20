@@ -11,6 +11,9 @@ const upload = multer({ dest: 'public/' });
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public', { index: false }));
+function logVisit(ip) {
+    console.log(`Odwiedzono stronę z IP: ${ip}`);
+}
 
 app.get('/panel', (req, res) => {
     fs.readdir('public', (err, files) => {
