@@ -128,10 +128,9 @@ app.post('/panel/rename/:filename', (req, res) => {
         () => res.redirect('/panel')
     );
 });
-// Strona główna
 app.get('/', (req, res) => {
     logVisit(req.ip);
-    res.send(
+    res.send(`
         <html>
         <head>
             <title>Moja strona</title>
@@ -143,6 +142,6 @@ app.get('/', (req, res) => {
             <h1>Witaj na mojej stronie!</h1>
         </body>
         </html>
-    );
+    `);
 });
 app.listen(PORT, () => console.log(`Serwer działa na http://localhost:${PORT}`));
