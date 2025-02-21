@@ -6,14 +6,23 @@ const multer = require('multer');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const upload = multer({ dest: 'public/' });
+// Konfiguracja Multer z zachowaniem oryginalnych nazw plików
+const storage = multer.diskStorage({
+  destination: 'public/',
+  filename: (req, file, cb) => {
+    cb(null, file.originalname)
+  }
+})
+
+const upload = multer({ storage })
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public', { index: false }));
 
-function logVisit(ip) {
-    console.log(`Odwiedzono stronę z IP: ${ip}`);
+// Funkcja bezpieczeństwa
+const sanitizeFilename = (filename) => {
+  return filename.replace(/[^a-z0-9\.\-_]/gi, '_').replace(/\.\./g, '')
 }
 
 // Styl globalny i funkcje pomocnicze
@@ -248,187 +257,226 @@ const particlesScript = `
     </script>
 `;
 
+// Middleware do logowania
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} from ${req.ip}`)
+  next()
+})
+
+// Routes
 app.get('/', (req, res) => {
-    logVisit(req.ip);
-    res.send(`
-        <html>
-        <head>
-            <title>FILES PORTAL</title>
-            ${neonStyles}
-        </head>
-        <body>
-            <div class="particles" id="particles"></div>
-            <div class="container">
-                <h1>🚀 Welcome to Files Zone! 🌌</h1>
-                <div style="text-align: center;">
-                    <button onclick="window.location.reload();" class="btn glow">🔄 Refresh</button>
-                </div>
+  res.send(`
+    <html>
+    <head>
+        <title>FILES PORTAL</title>
+        ${neonStyles}
+    </head>
+    <body>
+        <div class="particles" id="particles"></div>
+        <div class="container">
+            <h1>🚀 Welcome to Files Zone! 🌌</h1>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="/panel" class="btn glow">🔓 Open Admin Panel</a>
             </div>
-            ${particlesScript}
-        </body>
-        </html>
-    `);
-});
+        </div>
+        ${particlesScript}
+    </body>
+    </html>
+  `)
+})
 
 app.get('/panel', (req, res) => {
-    fs.readdir('public', (err, files) => {
-        if (err) return res.send('Błąd wczytywania plików.');
-        
-        const fileRows = files.map(file => `
-            <tr class="fade-in">
-                <td>${file}</td>
-                <td class="actions">
-                    <a href="/${encodeURIComponent(file)}" download class="btn glow">📥 Pobierz</a>
-                    <a href="/panel/edit/${encodeURIComponent(file)}" class="btn glow">✏️ Edytuj</a>
-                    <a href="/panel/rename/${encodeURIComponent(file)}" class="btn glow">🔄 Zmień nazwę</a>
+  fs.readdir('public', (err, files) => {
+    if (err) return res.status(500).send('Błąd wczytywania plików.')
+
+    const fileList = files
+      .map(file => ({ name: file, date: fs.statSync(path.join('public', file)).birthtime }))
+      .sort((a, b) => b.date - a.date)
+
+    res.send(`
+        <html>
+        <head>
+            <title>NEON FILE PANEL</title>
+            ${neonStyles}
+        </head>
+        <body>
+            <div class="particles" id="particles"></div>
+            <div class="container">
+                <h1>🚀 NEON FILE PANEL</h1>
+                
+                <div style="margin-bottom: 2rem;">
                     <a href="/panel/create" class="btn glow">✨ Create New File</a>
-                    <a href="/panel/redirect/${encodeURIComponent(file)}" class="btn glow">🌐 Otwórz</a>
-                    <a href="/panel/delete/${encodeURIComponent(file)}" class="btn glow danger">🗑️ Usuń</a>
-                </td>
-            </tr>
-        `).join('');
-
-        res.send(`
-            <html>
-            <head>
-                <title>NEON FILE PANEL</title>
-                ${neonStyles}
-            </head>
-            <body>
-                <div class="particles" id="particles"></div>
-                <div class="container">
-                    <h1>🚀 NEON FILE PANEL</h1>
-                    <form action="/panel/upload" method="POST" enctype="multipart/form-data">
-                        <input type="file" name="file" required>
-                        <button type="submit">⬆️ Upload File</button>
-                    </form>
-                    <table>
-                        <tr><th>File Name</th><th>Actions</th></tr>
-                        ${fileRows}
-                    </table>
                 </div>
-                ${particlesScript}
-            </body>
-            </html>
-        `);
-    });
-});
-// Nowy formularz do tworzenia plików
-app.get('/panel/create', (req, res) => {
-    res.send(`
-        <html>
-        <head>
-            <title>Create New File</title>
-            ${neonStyles}
-        </head>
-        <body>
-            <div class="particles" id="particles"></div>
-            <div class="container">
-                <h1>✨ Create New File</h1>
-                <form action="/panel/create" method="POST">
-                    <input type="text" name="filename" placeholder="File name" required>
-                    <textarea name="content" placeholder="File content"></textarea>
-                    <button type="submit" class="btn glow">🚀 Create</button>
+
+                <form action="/panel/upload" method="POST" enctype="multipart/form-data">
+                    <input type="file" name="file" required>
+                    <button type="submit" class="btn glow">⬆️ Upload File</button>
                 </form>
-                <a href="/panel" class="btn glow">🔙 Back</a>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${fileList.map(file => `
+                            <tr class="fade-in">
+                                <td>${file.name}</td>
+                                <td>${file.date.toLocaleString()}</td>
+                                <td class="actions">
+                                    <a href="/${encodeURIComponent(file.name)}" download class="btn glow">📥 Download</a>
+                                    <a href="/panel/edit/${encodeURIComponent(file.name)}" class="btn glow">✏️ Edit</a>
+                                    <a href="/panel/rename/${encodeURIComponent(file.name)}" class="btn glow">🔄 Rename</a>
+                                    <a href="/panel/redirect/${encodeURIComponent(file.name)}" class="btn glow">🌐 Open</a>
+                                    <a href="/panel/delete/${encodeURIComponent(file.name)}" class="btn glow danger">🗑️ Delete</a>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
             </div>
             ${particlesScript}
         </body>
         </html>
-    `);
-});
+    `)
+  })
+})
 
-// Obsługa tworzenia plików
-app.post('/panel/create', (req, res) => {
-    const { filename, content } = req.body;
-    if (!filename) return res.send('File name is required!');
-
-    const filePath = path.join(__dirname, 'public', filename);
-    
-    // Sprawdź czy plik już istnieje
-    fs.access(filePath, fs.constants.F_OK, (err) => {
-        if (!err) return res.send('File already exists!');
-        
-        fs.writeFile(filePath, content || '', (err) => {
-            if (err) return res.send('Error creating file!');
-            res.redirect('/panel');
-        });
-    });
-});
-app.get('/panel/edit/:filename', (req, res) => {
-    fs.readFile(path.join(__dirname, 'public', req.params.filename), 'utf8', (err, data) => {
-        if (err) return res.send('Błąd odczytu pliku.');
-        res.send(`
-            <html>
-            <head>
-                <title>Edytuj plik</title>
-                ${neonStyles}
-            </head>
-            <body>
-                <div class="particles" id="particles"></div>
-                <div class="container">
-                    <h1>✏️ Edit File</h1>
-                    <form action="/panel/edit/${encodeURIComponent(req.params.filename)}" method="POST">
-                        <textarea name="content">${data}</textarea>
-                        <button type="submit">💾 Save</button>
-                    </form>
-                    <a href="/panel" class="btn glow">🔙 Back</a>
-                </div>
-                ${particlesScript}
-            </body>
-            </html>
-        `);
-    });
-});
-
-app.get('/panel/rename/:filename', (req, res) => {
-    res.send(`
-        <html>
-        <head>
-            <title>Zmień nazwę</title>
-            ${neonStyles}
-        </head>
-        <body>
-            <div class="particles" id="particles"></div>
-            <div class="container">
-                <h1>🔄 Rename File</h1>
-                <form action="/panel/rename/${encodeURIComponent(req.params.filename)}" method="POST">
-                    <input type="text" name="newName" required>
-                    <button type="submit">🚀 Rename</button>
-                </form>
-                <a href="/panel" class="btn glow">🔙 Back</a>
-            </div>
-            ${particlesScript}
-        </body>
-        </html>
-    `);
-});
-
-// Pozostałe endpointy
-app.post('/panel/upload', upload.single('file'), (req, res) => res.redirect('/panel'));
+// Operacje na plikach
+app.post('/panel/upload', upload.single('file'), (req, res) => {
+  res.redirect('/panel')
+})
 
 app.get('/panel/delete/:filename', (req, res) => {
-    fs.unlink(path.join(__dirname, 'public', req.params.filename), (err) => {
-        res.redirect('/panel');
-    });
-});
+  const filename = sanitizeFilename(req.params.filename)
+  const filePath = path.join(__dirname, 'public', filename)
 
-app.post('/panel/edit/:filename', (req, res) => {
-    fs.writeFile(path.join(__dirname, 'public', req.params.filename), req.body.content, 'utf8', (err) => {
-        res.redirect('/panel');
-    });
-});
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      console.error(`Delete error: ${err}`)
+      return res.redirect('/panel?error=delete_failed')
+    }
+    res.redirect('/panel')
+  })
+})
 
 app.post('/panel/rename/:filename', (req, res) => {
-    fs.rename(
-        path.join(__dirname, 'public', req.params.filename),
-        path.join(__dirname, 'public', req.body.newName),
-        () => res.redirect('/panel')
-    );
-});
+  const oldName = sanitizeFilename(req.params.filename)
+  const newName = sanitizeFilename(req.body.newName)
 
-app.get('/panel/redirect/:filename', (req, res) => {
-    res.redirect(`/${encodeURIComponent(req.params.filename)}`);
-});
+  fs.rename(
+    path.join(__dirname, 'public', oldName),
+    path.join(__dirname, 'public', newName),
+    (err) => {
+      if (err) {
+        console.error(`Rename error: ${err}`)
+        return res.redirect(`/panel/rename/${oldName}?error=rename_failed`)
+      }
+      res.redirect('/panel')
+    }
+  )
+})
 
-app.listen(PORT, () => console.log(`Serwer działa na http://localhost:${PORT}`));
+app.get('/panel/edit/:filename', (req, res) => {
+  const filename = sanitizeFilename(req.params.filename)
+  const filePath = path.join(__dirname, 'public', filename)
+
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) return res.status(404).send('File not found')
+
+    res.send(`
+        <html>
+        <head>
+            <title>Edit File</title>
+            ${neonStyles}
+        </head>
+        <body>
+            <div class="particles" id="particles"></div>
+            <div class="container">
+                <h1>✏️ Editing: ${filename}</h1>
+                <form action="/panel/edit/${encodeURIComponent(filename)}" method="POST">
+                    <textarea name="content">${data}</textarea>
+                    <div style="margin-top: 1rem;">
+                        <button type="submit" class="btn glow">💾 Save Changes</button>
+                        <a href="/panel" class="btn glow">🔙 Cancel</a>
+                    </div>
+                </form>
+            </div>
+            ${particlesScript}
+        </body>
+        </html>
+    `)
+  })
+})
+
+app.post('/panel/edit/:filename', (req, res) => {
+  const filename = sanitizeFilename(req.params.filename)
+  const filePath = path.join(__dirname, 'public', filename)
+
+  fs.writeFile(filePath, req.body.content, 'utf8', (err) => {
+    if (err) {
+      console.error(`Write error: ${err}`)
+      return res.redirect(`/panel/edit/${filename}?error=save_failed`)
+    }
+    res.redirect('/panel')
+  })
+})
+
+// Tworzenie nowego pliku
+app.get('/panel/create', (req, res) => {
+  res.send(`
+    <html>
+    <head>
+        <title>Create New File</title>
+        ${neonStyles}
+    </head>
+    <body>
+        <div class="particles" id="particles"></div>
+        <div class="container">
+            <h1>✨ Create New File</h1>
+            <form action="/panel/create" method="POST">
+                <input type="text" name="filename" placeholder="File name" required>
+                <textarea name="content" placeholder="File content"></textarea>
+                <div style="margin-top: 1rem;">
+                    <button type="submit" class="btn glow">🚀 Create File</button>
+                    <a href="/panel" class="btn glow">🔙 Cancel</a>
+                </div>
+            </form>
+        </div>
+        ${particlesScript}
+    </body>
+    </html>
+  `)
+})
+
+app.post('/panel/create', (req, res) => {
+  const rawFilename = req.body.filename
+  const filename = sanitizeFilename(rawFilename)
+  const content = req.body.content || ''
+  const filePath = path.join(__dirname, 'public', filename)
+
+  if (!filename) return res.redirect('/panel/create?error=invalid_name')
+
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (!err) return res.redirect('/panel/create?error=file_exists')
+
+    fs.writeFile(filePath, content, (err) => {
+      if (err) {
+        console.error(`Create error: ${err}`)
+        return res.redirect('/panel/create?error=create_failed')
+      }
+      res.redirect('/panel')
+    })
+  })
+})
+
+// Obsługa błędów
+app.use((err, req, res, next) => {
+  console.error(err.stack)
+  res.status(500).send('Something broke!')
+})
+
+app.listen(PORT, () => console.log(`Serwer działa na http://localhost:${PORT}`))
