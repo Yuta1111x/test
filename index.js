@@ -20,13 +20,14 @@ function logVisit(ip) {
 // Funkcja wykonująca komendy gita
 function commitToRepo(message) {
     // Upewnij się, że środowisko ma skonfigurowane odpowiednie uprawnienia (np. klucze SSH lub token dostępu)
-    exec(`git add public && git commit -m "${message}" && git push`, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Błąd przy commicie: ${error.message}`);
-        } else {
-            console.log(`Commit udany: ${stdout}`);
-        }
-    });
+exec(`git add public && git commit -m "${message}" && git push https://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@github.com/Yuta1111x/test.git`, (error, stdout, stderr) => {
+    if (error) {
+        console.error(`Błąd przy commicie: ${error.message}`);
+    } else {
+        console.log(`Commit udany: ${stdout}`);
+    }
+});
+
 }
 
 // Styl globalny i funkcje pomocnicze
