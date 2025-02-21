@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const { exec } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,19 +16,6 @@ function logVisit(ip) {
     console.log(`Odwiedzono stronę z IP: ${ip}`);
 }
 
-// Funkcja wykonująca komendy gita
-function commitToRepo(message) {
-    // Upewnij się, że środowisko ma skonfigurowane odpowiednie uprawnienia (np. klucze SSH lub token dostępu)
-exec(`git add public && git commit -m "${message}" && git push https://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@github.com/Yuta1111x/test.git`, (error, stdout, stderr) => {
-    if (error) {
-        console.error(`Błąd przy commicie: ${error.message}`);
-    } else {
-        console.log(`Commit udany: ${stdout}`);
-    }
-});
-
-}
-
 // Styl globalny i funkcje pomocnicze
 const neonStyles = `
 <style>
@@ -40,34 +26,34 @@ const neonStyles = `
         text-decoration: none;
     }
     /* Nowe style dla formularza tworzenia pliku */
-    input[type="text"] {
-        width: 100%;
-        padding: 1rem;
-        margin: 1rem 0;
-        background: rgba(0, 243, 255, 0.1);
-        border: 2px solid var(--neon-blue);
-        color: white;
-        border-radius: 10px;
-        font-family: 'Rajdhani', sans-serif;
-    }
+input[type="text"] {
+    width: 100%;
+    padding: 1rem;
+    margin: 1rem 0;
+    background: rgba(0, 243, 255, 0.1);
+    border: 2px solid var(--neon-blue);
+    color: white;
+    border-radius: 10px;
+    font-family: 'Rajdhani', sans-serif;
+}
 
-    input[type="text"]:focus {
-        outline: none;
-        box-shadow: 0 0 15px var(--neon-blue);
-    }
-    textarea {
-        width: 100%;
-        height: 80vh;  /* Nowa wysokość zajmująca 80% okna */
-        min-height: 500px;  /* Minimalna wysokość gwarantująca czytelność */
-        padding: 1rem;
-        margin: 1rem 0;
-        background: rgba(0, 0, 0, 0.5);
-        border: 2px solid var(--neon-blue);
-        color: white;
-        font-family: monospace;
-        border-radius: 10px;
-        resize: vertical;
-    }
+input[type="text"]:focus {
+    outline: none;
+    box-shadow: 0 0 15px var(--neon-blue);
+}
+textarea {
+    width: 100%;
+    height: 80vh;  /* Nowa wysokość zajmująca 80% okna */
+    min-height: 500px;  /* Minimalna wysokość gwarantująca czytelność */
+    padding: 1rem;
+    margin: 1rem 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--neon-blue);
+    color: white;
+    font-family: monospace;
+    border-radius: 10px;
+    resize: vertical;
+}
 
     input[type="file"] {
         width: 100%;
@@ -327,8 +313,7 @@ app.get('/panel', (req, res) => {
         `);
     });
 });
-
-// Formularz do tworzenia plików
+// Nowy formularz do tworzenia plików
 app.get('/panel/create', (req, res) => {
     res.send(`
         <html>
@@ -366,14 +351,10 @@ app.post('/panel/create', (req, res) => {
         
         fs.writeFile(filePath, content || '', (err) => {
             if (err) return res.send('Error creating file!');
-            // Commit do repozytorium po stworzeniu pliku
-            commitToRepo(`Dodano plik: ${filename}`);
             res.redirect('/panel');
         });
     });
 });
-
-// Obsługa edycji pliku
 app.get('/panel/edit/:filename', (req, res) => {
     fs.readFile(path.join(__dirname, 'public', req.params.filename), 'utf8', (err, data) => {
         if (err) return res.send('Błąd odczytu pliku.');
@@ -400,16 +381,6 @@ app.get('/panel/edit/:filename', (req, res) => {
     });
 });
 
-app.post('/panel/edit/:filename', (req, res) => {
-    const filePath = path.join(__dirname, 'public', req.params.filename);
-    fs.writeFile(filePath, req.body.content, 'utf8', (err) => {
-        if(err) return res.send('Błąd zapisu pliku.');
-        commitToRepo(`Zaktualizowano plik: ${req.params.filename}`);
-        res.redirect('/panel');
-    });
-});
-
-// Obsługa zmiany nazwy pliku
 app.get('/panel/rename/:filename', (req, res) => {
     res.send(`
         <html>
@@ -422,7 +393,7 @@ app.get('/panel/rename/:filename', (req, res) => {
             <div class="container">
                 <h1>🔄 Rename File</h1>
                 <form action="/panel/rename/${encodeURIComponent(req.params.filename)}" method="POST">
-                    <input type="text" name="newName" required placeholder="Nowa nazwa pliku">
+                    <input type="text" name="newName" required>
                     <button type="submit">🚀 Rename</button>
                 </form>
                 <a href="/panel" class="btn glow">🔙 Back</a>
@@ -433,34 +404,29 @@ app.get('/panel/rename/:filename', (req, res) => {
     `);
 });
 
-app.post('/panel/rename/:filename', (req, res) => {
-    const oldPath = path.join(__dirname, 'public', req.params.filename);
-    const newPath = path.join(__dirname, 'public', req.body.newName);
-    fs.rename(oldPath, newPath, (err) => {
-        if(err) return res.send('Błąd zmiany nazwy pliku.');
-        commitToRepo(`Zmieniono nazwę pliku z ${req.params.filename} na ${req.body.newName}`);
-        res.redirect('/panel');
-    });
-});
+// Pozostałe endpointy
+app.post('/panel/upload', upload.single('file'), (req, res) => res.redirect('/panel'));
 
-// Obsługa uploadu pliku
-app.post('/panel/upload', upload.single('file'), (req, res) => {
-    // Plik został zapisany przez multer, teraz commitujemy zmianę
-    commitToRepo(`Dodano plik przez upload: ${req.file.originalname}`);
-    res.redirect('/panel');
-});
-
-// Obsługa usuwania pliku
 app.get('/panel/delete/:filename', (req, res) => {
-    const filePath = path.join(__dirname, 'public', req.params.filename);
-    fs.unlink(filePath, (err) => {
-        if(err) console.error('Błąd przy usuwaniu pliku:', err);
-        else commitToRepo(`Usunięto plik: ${req.params.filename}`);
+    fs.unlink(path.join(__dirname, 'public', req.params.filename), (err) => {
         res.redirect('/panel');
     });
 });
 
-// Przekierowanie do pliku
+app.post('/panel/edit/:filename', (req, res) => {
+    fs.writeFile(path.join(__dirname, 'public', req.params.filename), req.body.content, 'utf8', (err) => {
+        res.redirect('/panel');
+    });
+});
+
+app.post('/panel/rename/:filename', (req, res) => {
+    fs.rename(
+        path.join(__dirname, 'public', req.params.filename),
+        path.join(__dirname, 'public', req.body.newName),
+        () => res.redirect('/panel')
+    );
+});
+
 app.get('/panel/redirect/:filename', (req, res) => {
     res.redirect(`/${encodeURIComponent(req.params.filename)}`);
 });
