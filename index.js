@@ -298,9 +298,6 @@ if (err) return res.send('Błąd wczytywania plików.');
 const fileRows = files.map(file => `
 <tr class="fade-in">
     <td>${file}</td>
-    <div style="margin-bottom: 2rem;">
-     <a href="/panel/create" class="btn glow">✨ Create New File</a>
-    </div>
     <td class="actions">
         <a href="/${encodeURIComponent(file)}" download class="btn glow">📥 Pobierz</a>
         <a href="/panel/edit/${encodeURIComponent(file)}" class="btn glow">✏️ Edytuj</a>
@@ -327,6 +324,9 @@ res.send(`
             <input type="file" name="file" required>
             <button type="submit">⬆️ Upload File</button>
         </form>
+    <div style="margin-bottom: 2rem;">
+     <a href="/panel/create" class="btn glow">✨ Create New File</a>
+    </div>
         <table>
             <tr>
                 <th>File Name</th>
