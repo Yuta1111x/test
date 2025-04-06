@@ -1108,10 +1108,16 @@ app.get('/chat', (req, res) => {
                 
                 // Najpierw zabezpiecz bloki kodu, aby marked ich nie przetwarzał
                 const codeBlocks = [];
-                processedText = processedText.replace(/<div class="code-container">[\\s\\S]*?<\\/div>/g, function(match) {
-                    codeBlocks.push(match);
-                    return "{{CODE_BLOCK_" + (codeBlocks.length - 1) + "}}";
-                });
+processedText = processedText.replace(/<div class="code-container">[\s\S]*?<\/div>/g, function(match) {
+    // Wyszukujemy zawartość wewnątrz tagu <code>
+    const innerMatch = match.match(/<code[^>]*>([\s\S]*?)<\/code>/);
+    let innerText = innerMatch ? innerMatch[1] : match;
+    // Zachowujemy oryginalny blok kodu w tablicy
+    codeBlocks.push(match);
+    // Zwracamy placeholder z widocznym tekstem (cały tekst otoczony znakami < >)
+    return "{{CODE_BLOCK_" + (codeBlocks.length - 1) + "}} <" + innerText + ">";
+});
+
                 
                 // Zastosuj formatowanie Markdown
                 processedText = marked.parse(processedText);
@@ -1326,13 +1332,13 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
 
         // Format code blocks properly
         // Replace markdown code blocks with styled HTML code containers
-        aiReply = aiReply.replace(/```c\+\+/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```cpp/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/KOD C\+\+:/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```python/g, '<div class="code-container"><div class="code-header"><span>Python</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```javascript/g, '<div class="code-container"><div class="code-header"><span>JavaScript</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```html/g, '<div class="code-container"><div class="code-header"><span>HTML</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```css/g, '<div class="code-container"><div class="code-header"><span>CSS</span></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```c\+\+/g, '<div class="code-container"><div class="code-header"><span>C++</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```cpp/g, '<div class="code-container"><div class="code-header"><span>C++</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/KOD C\+\+:/g, '<div class="code-container"><div class="code-header"><span>C++</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```python/g, '<div class="code-container"><div class="code-header"><span>Python</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```javascript/g, '<div class="code-container"><div class="code-header"><span>JavaScript</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```html/g, '<div class="code-container"><div class="code-header"><span>HTML</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```css/g, '<div class="code-container"><div class="code-header"><span>CSS</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
         aiReply = aiReply.replace(/```/g, '</code></pre><div class="code-footer"><div class="mini-counter"><i class="fas fa-code"></i> kod</div></div></div>');
 
         // If image was uploaded temporarily, delete it after processing

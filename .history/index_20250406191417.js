@@ -11,32 +11,32 @@ const GEMINI_API_KEY = 'AIzaSyAP1EOpnlAhNRh9MI41v8EHtyRGylNR_bA';
 
 // Upewnij się, że istnieje folder temp
 if (!fs.existsSync('temp')) {
-    fs.mkdirSync('temp');
+  fs.mkdirSync('temp');
 }
 
 // Configure multer to preserve original filename for file panel
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        // Make sure the "pliki" directory exists
-        if (!fs.existsSync('pliki')) {
-            fs.mkdirSync('pliki');
-        }
-        cb(null, 'pliki/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.originalname);
+  destination: (req, file, cb) => {
+    // Make sure the "pliki" directory exists
+    if (!fs.existsSync('pliki')) {
+      fs.mkdirSync('pliki');
     }
+    cb(null, 'pliki/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  }
 });
 const upload = multer({ storage: storage });
 
 // Configure multer for temporary image uploads
 const tempStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'temp/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
+  destination: (req, file, cb) => {
+    cb(null, 'temp/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
 });
 const tempUpload = multer({ storage: tempStorage });
 
@@ -244,7 +244,7 @@ const modernStyles = `
 `;
 
 app.get('/', (req, res) => {
-    res.send(`
+res.send(`
 <html>
 <head>
     <title>Files Portal</title>
@@ -272,18 +272,18 @@ app.get('/', (req, res) => {
 });
 
 app.get('/panel', (req, res) => {
-    fs.readdir('pliki', (err, files) => {
-        if (err) {
-            if (err.code === 'ENOENT') {
-                // Directory doesn't exist, create it
-                fs.mkdirSync('pliki');
-                files = [];
-            } else {
-                return res.send('Error loading files.');
-            }
-        }
+  fs.readdir('pliki', (err, files) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        // Directory doesn't exist, create it
+        fs.mkdirSync('pliki');
+        files = [];
+      } else {
+        return res.send('Error loading files.');
+      }
+    }
 
-        const fileRows = files.map(file => `
+const fileRows = files.map(file => `
 <tr class="fade-in">
     <td>${file}</td>
     <td class="actions">
@@ -296,7 +296,7 @@ app.get('/panel', (req, res) => {
 </tr>
 `).join('');
 
-        res.send(`
+res.send(`
 <html>
 <head>
         <title>File Management</title>
@@ -330,11 +330,11 @@ app.get('/panel', (req, res) => {
 </body>
 </html>
 `);
-    });
+});
 });
 
 app.get('/panel/create', (req, res) => {
-    res.send(`
+res.send(`
 <html>
 <head>
     <title>Create New File</title>
@@ -360,26 +360,26 @@ app.get('/panel/create', (req, res) => {
 
 // Obsługa tworzenia plików
 app.post('/panel/create', (req, res) => {
-    const { filename, content } = req.body;
-    if (!filename) return res.send('File name is required!');
+const { filename, content } = req.body;
+if (!filename) return res.send('File name is required!');
 
-    const filePath = path.join(__dirname, 'pliki', filename);
+const filePath = path.join(__dirname, 'pliki', filename);
 
-    // Sprawdź czy plik już istnieje
-    fs.access(filePath, fs.constants.F_OK, (err) => {
-        if (!err) return res.send('File already exists!');
+// Sprawdź czy plik już istnieje
+fs.access(filePath, fs.constants.F_OK, (err) => {
+if (!err) return res.send('File already exists!');
 
-        fs.writeFile(filePath, content || '', (err) => {
-            if (err) return res.send('Error creating file!');
-            res.redirect('/panel');
-        });
-    });
+fs.writeFile(filePath, content || '', (err) => {
+if (err) return res.send('Error creating file!');
+res.redirect('/panel');
+});
+});
 });
 
 app.get('/panel/edit/:filename', (req, res) => {
-    fs.readFile(path.join(__dirname, 'pliki', req.params.filename), 'utf8', (err, data) => {
-        if (err) return res.send('Error reading file.');
-        res.send(`
+fs.readFile(path.join(__dirname, 'pliki', req.params.filename), 'utf8', (err, data) => {
+if (err) return res.send('Error reading file.');
+res.send(`
 <html>
 <head>
     <title>Edit File</title>
@@ -400,11 +400,11 @@ app.get('/panel/edit/:filename', (req, res) => {
 </body>
 </html>
 `);
-    });
+});
 });
 
 app.get('/panel/rename/:filename', (req, res) => {
-    res.send(`
+res.send(`
 <html>
 <head>
     <title>Rename File</title>
@@ -431,27 +431,27 @@ app.get('/panel/rename/:filename', (req, res) => {
 app.post('/panel/upload', upload.single('file'), (req, res) => res.redirect('/panel'));
 
 app.get('/panel/delete/:filename', (req, res) => {
-    fs.unlink(path.join(__dirname, 'pliki', req.params.filename), (err) => {
-        res.redirect('/panel');
-    });
+fs.unlink(path.join(__dirname, 'pliki', req.params.filename), (err) => {
+res.redirect('/panel');
+});
 });
 
 app.post('/panel/edit/:filename', (req, res) => {
-    fs.writeFile(path.join(__dirname, 'pliki', req.params.filename), req.body.content, 'utf8', (err) => {
-        res.redirect('/panel');
-    });
+fs.writeFile(path.join(__dirname, 'pliki', req.params.filename), req.body.content, 'utf8', (err) => {
+res.redirect('/panel');
+});
 });
 
 app.post('/panel/rename/:filename', (req, res) => {
-    fs.rename(
-        path.join(__dirname, 'pliki', req.params.filename),
-        path.join(__dirname, 'pliki', req.body.newName),
-        () => res.redirect('/panel')
-    );
+fs.rename(
+path.join(__dirname, 'pliki', req.params.filename),
+path.join(__dirname, 'pliki', req.body.newName),
+() => res.redirect('/panel')
+);
 });
 
 app.get('/panel/redirect/:filename', (req, res) => {
-    res.redirect(`/files/${encodeURIComponent(req.params.filename)}`);
+res.redirect(`/files/${encodeURIComponent(req.params.filename)}`);
 });
 
 // Dodaj endpoint do udostępniania plików z folderu pliki
@@ -459,7 +459,7 @@ app.use('/files', express.static('pliki'));
 
 // Add Gemini chat page
 app.get('/chat', (req, res) => {
-    const chatHtml = `<!DOCTYPE html>
+  const chatHtml = `<!DOCTYPE html>
 <html>
 <head>
     <title>YutAi - Inteligentny Asystent</title>
@@ -624,7 +624,7 @@ app.get('/chat', (req, res) => {
       }
       
       .footer {
-          padding: 1.5rem 2rem;
+          padding: 1rem 2rem;
           border-top: 1px solid rgba(255, 255, 255, 0.1);
           background: rgba(15, 23, 42, 0.5);
       }
@@ -635,9 +635,9 @@ app.get('/chat', (req, res) => {
           position: relative;
       }
       
-      .input-area input {
+      .input-area textarea {
           flex-grow: 1;
-          padding: 1rem 1rem 1rem 3rem;
+          padding: 0.6rem 1rem 0.6rem 3rem;
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 15px;
           background: rgba(15, 23, 42, 0.6);
@@ -645,9 +645,16 @@ app.get('/chat', (req, res) => {
           font-family: 'Poppins', sans-serif;
           font-size: 1rem;
           transition: all 0.3s ease;
+          height: 42px;
+          min-height: 42px;
+          max-height: 42px;
+          resize: none;
+          overflow-y: auto;
+          line-height: 1.5;
+          white-space: pre-wrap;
       }
       
-      .input-area input:focus {
+      .input-area textarea:focus {
           outline: none;
           border-color: #6366f1;
           box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
@@ -1012,7 +1019,7 @@ app.get('/chat', (req, res) => {
         <div class="footer">
             <div class="input-area">
                 <i class="fas fa-message input-icon"></i>
-                <input type="text" id="user-input" placeholder="Napisz wiadomość..." autocomplete="off">
+                <textarea id="user-input" placeholder="Napisz wiadomość... (Shift+Enter dla nowej linii)" autocomplete="off"></textarea>
                 <button id="send-button">
                     <span>Wyślij</span>
                     <i class="fas fa-paper-plane"></i>
@@ -1055,7 +1062,13 @@ app.get('/chat', (req, res) => {
             const codeElement = document.getElementById(blockId);
             if (!codeElement) return;
             
-            navigator.clipboard.writeText(codeElement.textContent)
+            // Pobierz tekst z HTML, zamieniając encje HTML z powrotem na znaki
+            const encodedText = codeElement.innerHTML;
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = encodedText; // Automatycznie konwertuje encje HTML
+            const decodedText = textarea.value;
+            
+            navigator.clipboard.writeText(decodedText)
                 .then(() => {
                     const btn = codeElement.closest('.code-container').querySelector('.copy-btn');
                     const originalText = btn.textContent;
@@ -1081,6 +1094,7 @@ app.get('/chat', (req, res) => {
             const contentDiv = document.createElement('div');
             
             if (isUser) {
+                // Escape HTML tags w wiadomościach użytkownika
                 contentDiv.textContent = text;
                 
                 // Dodaj zdjęcie jeśli zostało wybrane
@@ -1096,11 +1110,17 @@ app.get('/chat', (req, res) => {
                 // Skonfiguruj marked.js do obsługi pogrubienia i innych stylów Markdown
                 const renderer = new marked.Renderer();
                 
+                // Bezpieczne przetwarzanie kodu HTML
+                renderer.text = function(text) {
+                    return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                };
+                
                 // Użyj marked do konwersji Markdown na HTML
                 marked.setOptions({
                     renderer: renderer,
                     breaks: true,
-                    gfm: true
+                    gfm: true,
+                    sanitize: false  // Wyłączamy wbudowane sanitize, bo używamy własnego renderer.text
                 });
                 
                 // Przetwórz tekst na HTML z zachowaniem bloków kodu
@@ -1108,17 +1128,36 @@ app.get('/chat', (req, res) => {
                 
                 // Najpierw zabezpiecz bloki kodu, aby marked ich nie przetwarzał
                 const codeBlocks = [];
-                processedText = processedText.replace(/<div class="code-container">[\\s\\S]*?<\\/div>/g, function(match) {
-                    codeBlocks.push(match);
+                processedText = processedText.replace(/\`\`\`([\s\S]*?)\`\`\`/g, function(match, code) {
+                    // Escape HTML special characters in code blocks
+                    const escapedCode = code
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    codeBlocks.push(escapedCode);
                     return "{{CODE_BLOCK_" + (codeBlocks.length - 1) + "}}";
                 });
                 
                 // Zastosuj formatowanie Markdown
                 processedText = marked.parse(processedText);
                 
-                // Przywróć bloki kodu
-                processedText = processedText.replace(/{{CODE_BLOCK_(\\d+)}}/g, function(match, index) {
-                    return codeBlocks[parseInt(index)];
+                // Przywróć bloki kodu z odpowiednim formatowaniem HTML
+                processedText = processedText.replace(/{{CODE_BLOCK_(\d+)}}/g, function(match, index) {
+                    const codeContent = codeBlocks[parseInt(index)];
+                    const codeId = 'code-block-' + Date.now() + '-' + index;
+                    return '<div class="code-container">' +
+                        '<div class="code-header">' +
+                        '<span>Code</span>' +
+                        '<div class="code-actions">' +
+                        '<button class="copy-btn" onclick="copyCode(\'' + codeId + '\')">' +
+                        '<i class="fas fa-copy"></i> Kopiuj' +
+                        '</button>' +
+                        '</div>' +
+                        '</div>' +
+                        '<pre class="code-block"><code id="' + codeId + '">' + codeContent + '</code></pre>' +
+                        '<div class="code-footer">' +
+                        '<div class="mini-counter"><i class="fas fa-code"></i> kod</div>' +
+                        '</div>' +
+                        '</div>';
                 });
                 
                 contentDiv.innerHTML = processedText;
@@ -1235,12 +1274,21 @@ app.get('/chat', (req, res) => {
         }
         
         // Obsługa przycisku wysyłania
-        sendButton.addEventListener('click', sendMessage);
+sendButton.addEventListener('click', function() {
+    sendMessage();
+        });
         
         // Obsługa klawisza Enter
-        userInput.addEventListener('keypress', function(e) {
+        userInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                sendMessage();
+                if (e.shiftKey) {
+                    // Shift+Enter - dodaj nową linię (domyślne zachowanie)
+                    return true;
+                } else {
+                    // Sam Enter - wyślij wiadomość
+                    e.preventDefault();
+                    sendMessage();
+                }
             }
         });
         
@@ -1257,96 +1305,120 @@ app.get('/chat', (req, res) => {
 </body>
 </html>`;
 
-    res.send(chatHtml);
+  res.send(chatHtml);
 });
 
 // Add API endpoint for Gemini with image support
 app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
-    try {
-        const userMessage = req.body.message || '';
-
-        // Podstawowa instrukcja dla modelu
-        let instruction = "Odpowiadaj zawsze w języku polskim, bez względu na język zapytania. Twoje odpowiedzi powinny być pomocne, dokładne i przyjazne oraz dopracowane i zrozumiale.";
-
-        const fullMessage = instruction + " " + userMessage;
-
-        let apiRequestBody = {
-            contents: [
-                {
-                    parts: [
-                        {
-                            text: fullMessage
-                        }
-                    ]
-                }
-            ],
-            generationConfig: {
-                temperature: 0.7,
-                topK: 40,
-                topP: 0.95,
-                maxOutputTokens: 8192
-            }
-        };
-
-        // If image is present, add it to the API request
-        if (req.file) {
-            const imagePath = path.join(__dirname, req.file.path);
-            const imageBuffer = fs.readFileSync(imagePath);
-            const base64Image = imageBuffer.toString('base64');
-
-            // Modify the request to include image
-            apiRequestBody.contents[0].parts = [
-                {
-                    text: fullMessage || "Opisz to zdjęcie w języku polskim"
-                },
-                {
-                    inlineData: {
-                        mimeType: req.file.mimetype,
-                        data: base64Image
-                    }
-                }
-            ];
-        }
-
-        // Determine the appropriate model based on whether an image is included
-        const apiModel = req.file ? 'gemini-1.5-pro-latest' : 'gemini-1.5-flash-latest';
-
-        const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/${apiModel}:generateContent?key=${GEMINI_API_KEY}`,
-            apiRequestBody,
+  try {
+    const userMessage = req.body.message || '';
+    
+    // Podstawowa instrukcja dla modelu
+    let instruction = "Odpowiadaj zawsze w języku polskim, bez względu na język zapytania. Twoje odpowiedzi powinny być pomocne, dokładne i przyjazne.";
+    
+    const fullMessage = instruction + " " + userMessage;
+    
+    let apiRequestBody = {
+      contents: [
+        {
+          parts: [
             {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+              text: fullMessage
             }
-        );
-
-        // Extract the AI's response text
-        let aiReply = response.data.candidates[0].content.parts[0].text;
-
-        // Format code blocks properly
-        // Replace markdown code blocks with styled HTML code containers
-        aiReply = aiReply.replace(/```c\+\+/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```cpp/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/KOD C\+\+:/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```python/g, '<div class="code-container"><div class="code-header"><span>Python</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```javascript/g, '<div class="code-container"><div class="code-header"><span>JavaScript</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```html/g, '<div class="code-container"><div class="code-header"><span>HTML</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```css/g, '<div class="code-container"><div class="code-header"><span>CSS</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```/g, '</code></pre><div class="code-footer"><div class="mini-counter"><i class="fas fa-code"></i> kod</div></div></div>');
-
-        // If image was uploaded temporarily, delete it after processing
-        if (req.file) {
-            fs.unlink(path.join(__dirname, req.file.path), (err) => {
-                if (err) console.error('Error deleting temporary image:', err);
-            });
+          ]
         }
-
-        res.json({ reply: aiReply });
-    } catch (error) {
-        console.error('Error calling Gemini API:', error);
-        res.status(500).json({ error: 'Failed to get response from Gemini', reply: 'Przepraszam, wystąpił błąd. Spróbuj ponownie później.' });
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 8192
+      }
+    };
+    
+    // If image is present, add it to the API request
+    if (req.file) {
+      const imagePath = path.join(__dirname, req.file.path);
+      const imageBuffer = fs.readFileSync(imagePath);
+      const base64Image = imageBuffer.toString('base64');
+      
+      // Modify the request to include image
+      apiRequestBody.contents[0].parts = [
+        {
+          text: fullMessage || "Opisz to zdjęcie w języku polskim"
+        },
+        {
+          inlineData: {
+            mimeType: req.file.mimetype,
+            data: base64Image
+          }
+        }
+      ];
     }
+    
+    // Determine the appropriate model based on whether an image is included
+    const apiModel = req.file ? 'gemini-1.5-pro-latest' : 'gemini-1.5-flash-latest';
+    
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/${apiModel}:generateContent?key=${GEMINI_API_KEY}`,
+      apiRequestBody,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    // Extract the AI's response text
+    let aiReply = response.data.candidates[0].content.parts[0].text;
+    
+    // Format code blocks properly
+    // Replace markdown code blocks with styled HTML code containers
+    aiReply = aiReply.replace(/\`\`\`(.*)\n([\s\S]*?)\`\`\`/g, function(match, language, code) {
+        // Generate a unique ID for this code block
+        const blockId = 'code-block-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+        
+        // Escape HTML in the code content
+        const escapedCode = code
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        
+        // Determine language display name
+        let displayLang = 'Code';
+        if (language) {
+            if (language === 'c++' || language === 'cpp') displayLang = 'C++';
+            else if (language === 'js') displayLang = 'JavaScript';
+            else displayLang = language.charAt(0).toUpperCase() + language.slice(1);
+        }
+        
+        return '<div class="code-container">' +
+            '<div class="code-header">' +
+            '<span>' + displayLang + '</span>' +
+            '<div class="code-actions">' +
+            '<button class="copy-btn" onclick="copyCode(\'' + blockId + '\')">' +
+            '<i class="fas fa-copy"></i> Kopiuj' +
+            '</button>' +
+            '</div>' +
+            '</div>' +
+            '<pre class="code-block"><code id="' + blockId + '">' + escapedCode + '</code></pre>' +
+            '<div class="code-footer">' +
+            '<div class="mini-counter"><i class="fas fa-code"></i> kod</div>' +
+            '</div>' +
+            '</div>';
+    });
+    
+    // If image was uploaded temporarily, delete it after processing
+    if (req.file) {
+      fs.unlink(path.join(__dirname, req.file.path), (err) => {
+        if (err) console.error('Error deleting temporary image:', err);
+      });
+    }
+    
+    res.json({ reply: aiReply });
+  } catch (error) {
+    console.error('Error calling Gemini API:', error);
+    res.status(500).json({ error: 'Failed to get response from Gemini', reply: 'Przepraszam, wystąpił błąd. Spróbuj ponownie później.' });
+  }
 });
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

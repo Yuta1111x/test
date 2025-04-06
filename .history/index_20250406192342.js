@@ -1261,13 +1261,73 @@ app.get('/chat', (req, res) => {
 });
 
 // Add API endpoint for Gemini with image support
+// Funkcja pomocnicza do parsowania bloków kodu
+function parseCodeBlocks(aiReply) {
+    // Wyrażenie regularne wyszukujące bloki kodu z trzema backtickami
+    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+    let blockCounter = 0;
+
+    const parsed = aiReply.replace(codeBlockRegex, (match, lang = '', code) => {
+        blockCounter++;
+        const codeBlockId = `code-block-${blockCounter}`;
+
+        // Zamiana znaków < i > na encje HTML
+        const escapedCode = code
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+        // Dobieranie etykiety języka
+        let langLabel;
+        switch (lang.toLowerCase()) {
+            case 'cpp':
+            case 'c++':
+                langLabel = 'C++';
+                break;
+            case 'python':
+                langLabel = 'Python';
+                break;
+            case 'javascript':
+                langLabel = 'JavaScript';
+                break;
+            case 'html':
+                langLabel = 'HTML';
+                break;
+            case 'css':
+                langLabel = 'CSS';
+                break;
+            default:
+                langLabel = lang ? lang : 'Kod';
+        }
+
+        return `
+<div class="code-container">
+  <div class="code-header">
+    <span>${langLabel}</span>
+    <div class="code-actions">
+      <button class="copy-btn" onclick="copyCode('${codeBlockId}')">
+        <i class="fas fa-copy"></i> Kopiuj
+      </button>
+    </div>
+  </div>
+  <pre class="code-block"><code id="${codeBlockId}">${escapedCode}</code></pre>
+  <div class="code-footer">
+    <div class="mini-counter">
+      <i class="fas fa-code"></i> kod
+    </div>
+  </div>
+</div>`;
+    });
+
+    return parsed;
+}
+
+// Endpoint obsługujący zapytania
 app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
     try {
         const userMessage = req.body.message || '';
 
         // Podstawowa instrukcja dla modelu
         let instruction = "Odpowiadaj zawsze w języku polskim, bez względu na język zapytania. Twoje odpowiedzi powinny być pomocne, dokładne i przyjazne oraz dopracowane i zrozumiale.";
-
         const fullMessage = instruction + " " + userMessage;
 
         let apiRequestBody = {
@@ -1288,13 +1348,12 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
             }
         };
 
-        // If image is present, add it to the API request
+        // Jeśli przesłano obrazek, dodajemy go do zapytania API
         if (req.file) {
             const imagePath = path.join(__dirname, req.file.path);
             const imageBuffer = fs.readFileSync(imagePath);
             const base64Image = imageBuffer.toString('base64');
 
-            // Modify the request to include image
             apiRequestBody.contents[0].parts = [
                 {
                     text: fullMessage || "Opisz to zdjęcie w języku polskim"
@@ -1308,7 +1367,7 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
             ];
         }
 
-        // Determine the appropriate model based on whether an image is included
+        // Wybór modelu w zależności od obecności obrazka
         const apiModel = req.file ? 'gemini-1.5-pro-latest' : 'gemini-1.5-flash-latest';
 
         const response = await axios.post(
@@ -1321,21 +1380,13 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
             }
         );
 
-        // Extract the AI's response text
+        // Pobieramy odpowiedź AI
         let aiReply = response.data.candidates[0].content.parts[0].text;
 
-        // Format code blocks properly
-        // Replace markdown code blocks with styled HTML code containers
-        aiReply = aiReply.replace(/```c\+\+/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```cpp/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/KOD C\+\+:/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```python/g, '<div class="code-container"><div class="code-header"><span>Python</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```javascript/g, '<div class="code-container"><div class="code-header"><span>JavaScript</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```html/g, '<div class="code-container"><div class="code-header"><span>HTML</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```css/g, '<div class="code-container"><div class="code-header"><span>CSS</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```/g, '</code></pre><div class="code-footer"><div class="mini-counter"><i class="fas fa-code"></i> kod</div></div></div>');
+        // Przetwarzamy odpowiedź, aby poprawnie wyświetlać bloki kodu
+        aiReply = parseCodeBlocks(aiReply);
 
-        // If image was uploaded temporarily, delete it after processing
+        // Jeśli obrazek został przesłany tymczasowo, usuwamy go po przetworzeniu
         if (req.file) {
             fs.unlink(path.join(__dirname, req.file.path), (err) => {
                 if (err) console.error('Error deleting temporary image:', err);
@@ -1348,5 +1399,6 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
         res.status(500).json({ error: 'Failed to get response from Gemini', reply: 'Przepraszam, wystąpił błąd. Spróbuj ponownie później.' });
     }
 });
+
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

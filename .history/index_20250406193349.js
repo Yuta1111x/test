@@ -1074,66 +1074,72 @@ app.get('/chat', (req, res) => {
         }
         
         // Funkcja do dodawania wiadomości
-        function addMessage(text, isUser, imageUrl = null) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = isUser ? 'message user-message' : 'message ai-message';
-            
-            const contentDiv = document.createElement('div');
-            
-            if (isUser) {
-                contentDiv.textContent = text;
-                
-                // Dodaj zdjęcie jeśli zostało wybrane
-                if (imageUrl) {
-                    const img = document.createElement('img');
-                    img.src = imageUrl;
-                    img.className = 'user-message-image';
-                    img.alt = 'Przesłane zdjęcie';
-                    messageDiv.appendChild(img);
-                }
-            } else {
-                // Dla wiadomości AI używamy marked.js do formatowania Markdown
-                // Skonfiguruj marked.js do obsługi pogrubienia i innych stylów Markdown
-                const renderer = new marked.Renderer();
-                
-                // Użyj marked do konwersji Markdown na HTML
-                marked.setOptions({
-                    renderer: renderer,
-                    breaks: true,
-                    gfm: true
-                });
-                
-                // Przetwórz tekst na HTML z zachowaniem bloków kodu
-                let processedText = text;
-                
-                // Najpierw zabezpiecz bloki kodu, aby marked ich nie przetwarzał
-                const codeBlocks = [];
-                processedText = processedText.replace(/<div class="code-container">[\\s\\S]*?<\\/div>/g, function(match) {
-                    codeBlocks.push(match);
-                    return "{{CODE_BLOCK_" + (codeBlocks.length - 1) + "}}";
-                });
-                
-                // Zastosuj formatowanie Markdown
-                processedText = marked.parse(processedText);
-                
-                // Przywróć bloki kodu
-                processedText = processedText.replace(/{{CODE_BLOCK_(\\d+)}}/g, function(match, index) {
-                    return codeBlocks[parseInt(index)];
-                });
-                
-                contentDiv.innerHTML = processedText;
-            }
-            
-            const timeDiv = document.createElement('div');
-            timeDiv.className = 'message-time';
-            timeDiv.textContent = formatTime();
-            
-            messageDiv.appendChild(contentDiv);
-            messageDiv.appendChild(timeDiv);
-            
-            chatArea.appendChild(messageDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
+function addMessage(text, isUser, imageUrl = null) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = isUser ? 'message user-message' : 'message ai-message';
+
+    const contentDiv = document.createElement('div');
+
+    if (isUser) {
+        contentDiv.textContent = text;
+
+        // Dodaj zdjęcie jeśli zostało wybrane
+        if (imageUrl) {
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.className = 'user-message-image';
+            img.alt = 'Przesłane zdjęcie';
+            messageDiv.appendChild(img);
         }
+    } else {
+        // Konfiguracja marked.js do konwersji Markdown na HTML
+        const renderer = new marked.Renderer();
+        marked.setOptions({
+            renderer: renderer,
+            breaks: true,
+            gfm: true
+        });
+
+        // Przetwarzamy tekst otrzymany od AI
+        let processedText = text;
+
+        // Najpierw zabezpieczamy bloki kodu, aby marked.js ich nie parsował
+        const codeBlocks = [];
+        processedText = processedText.replace(/<div class="code-container">[\s\S]*?<\/div>/g, function(match) {
+            codeBlocks.push(match);
+            return "{{CODE_BLOCK_" + (codeBlocks.length - 1) + "}}";
+        });
+
+        // Dla każdego bloku kodu wyszukujemy zawartość tagu <code> i zamieniamy znaki < oraz > na encje HTML
+        for (let i = 0; i < codeBlocks.length; i++) {
+            codeBlocks[i] = codeBlocks[i].replace(/<code([^>]*)>([\s\S]*?)<\/code>/, function(match, p1, p2) {
+                const escapedContent = p2.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return `< code${ p1 }> ${ escapedContent }</code >`;
+            });
+        }
+        
+        // Konwertujemy pozostały tekst (bez bloków kodu) z Markdown na HTML
+        processedText = marked.parse(processedText);
+        
+        // Przywracamy bloki kodu w miejsce placeholderów
+        processedText = processedText.replace(/{{CODE_BLOCK_(\d+)}}/g, function(match, index) {
+            return codeBlocks[parseInt(index)];
+        });
+        
+        contentDiv.innerHTML = processedText;
+    }
+    
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'message-time';
+    timeDiv.textContent = formatTime();
+    
+    messageDiv.appendChild(contentDiv);
+    messageDiv.appendChild(timeDiv);
+    
+    chatArea.appendChild(messageDiv);
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
         
         // Funkcja do wysyłania wiadomości
         function sendMessage() {
@@ -1326,13 +1332,13 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
 
         // Format code blocks properly
         // Replace markdown code blocks with styled HTML code containers
-        aiReply = aiReply.replace(/```c\+\+/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```cpp/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/KOD C\+\+:/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```python/g, '<div class="code-container"><div class="code-header"><span>Python</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```javascript/g, '<div class="code-container"><div class="code-header"><span>JavaScript</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```html/g, '<div class="code-container"><div class="code-header"><span>HTML</span></div><pre class="code-block"><code id="code-block-1">');
-        aiReply = aiReply.replace(/```css/g, '<div class="code-container"><div class="code-header"><span>CSS</span></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```c\+\+/g, '<div class="code-container"><div class="code-header"><span>C++</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```cpp/g, '<div class="code-container"><div class="code-header"><span>C++</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/KOD C\+\+:/g, '<div class="code-container"><div class="code-header"><span>C++</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```python/g, '<div class="code-container"><div class="code-header"><span>Python</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```javascript/g, '<div class="code-container"><div class="code-header"><span>JavaScript</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```html/g, '<div class="code-container"><div class="code-header"><span>HTML</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```css/g, '<div class="code-container"><div class="code-header"><span>CSS</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(\'code-block-1\')"><i class="fas fa-copy"></i> Kopiuj</button></div></div><pre class="code-block"><code id="code-block-1">');
         aiReply = aiReply.replace(/```/g, '</code></pre><div class="code-footer"><div class="mini-counter"><i class="fas fa-code"></i> kod</div></div></div>');
 
         // If image was uploaded temporarily, delete it after processing
