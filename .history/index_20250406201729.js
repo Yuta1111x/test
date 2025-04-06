@@ -88,22 +88,6 @@ const modernStyles = `
         border: 1px solid var(--border-color);
     }
 
-    @media (max-width: 767px) {
-        .container {
-            width: 95%;
-            padding: 1.5rem;
-            margin: 1rem auto;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .container {
-            width: 98%;
-            padding: 1rem;
-            margin: 0.5rem auto;
-        }
-    }
-
     h1 {
         text-align: center;
         margin-bottom: 2rem;
@@ -111,21 +95,6 @@ const modernStyles = `
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 700;
-        font-size: 2.2rem;
-    }
-
-    @media (max-width: 767px) {
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
     }
 
     a {
@@ -142,19 +111,6 @@ const modernStyles = `
         font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.2s ease;
-        text-align: center;
-    }
-
-    @media (max-width: 767px) {
-        .btn {
-            padding: 0.5rem 0.8rem;
-            font-size: 0.8rem;
-            margin: 0.2rem;
-        }
-
-        td .btn {
-            min-width: 70px;
-        }
     }
 
     .btn-primary {
@@ -191,15 +147,7 @@ const modernStyles = `
         border-collapse: collapse;
         margin: 1.5rem 0;
         border-radius: 8px;
-        overflow-x: auto;
-        display: block;
-    }
-
-    @media (min-width: 768px) {
-        table {
-            display: table;
-            overflow-x: hidden;
-        }
+        overflow: hidden;
     }
 
     th, td {
@@ -218,19 +166,7 @@ const modernStyles = `
         background-color: rgba(255, 255, 255, 0.03);
     }
 
-    @media (max-width: 767px) {
-        th, td {
-            padding: 0.8rem 0.5rem;
-        }
-
-        td.actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.3rem;
-        }
-    }
-
-    input[type="text"],
+    input[type="text"], 
     input[type="file"] {
         width: 100%;
         padding: 0.8rem;
@@ -240,28 +176,6 @@ const modernStyles = `
         border-radius: 6px;
         color: var(--text-primary);
         font-family: 'Inter', sans-serif;
-    }
-
-    @media (max-width: 767px) {
-        input[type="text"],
-        input[type="file"] {
-            padding: 0.7rem;
-            margin: 0.6rem 0;
-            font-size: 0.9rem;
-        }
-    }
-
-    /* Poprawka dla input file na urządzeniach mobilnych */
-    @media (max-width: 480px) {
-        input[type="file"] {
-            padding: 0.5rem;
-            font-size: 0.8rem;
-        }
-
-        /* Styl dla kontenera input file w formularzu upload */
-        .header-actions form div {
-            width: 100%;
-        }
     }
 
     input[type="text"]:focus,
@@ -286,22 +200,6 @@ const modernStyles = `
         resize: vertical;
     }
 
-    @media (max-width: 767px) {
-        textarea {
-            height: 50vh;
-            min-height: 300px;
-            font-size: 14px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        textarea {
-            height: 40vh;
-            min-height: 200px;
-            font-size: 13px;
-        }
-    }
-
     form button[type="submit"] {
         background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
         color: white;
@@ -316,36 +214,6 @@ const modernStyles = `
     form button[type="submit"]:hover {
         background: linear-gradient(to right, #5254cc, #7e4fdb);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    @media (max-width: 767px) {
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        form button[type="submit"] {
-            align-self: flex-end;
-            padding: 0.7rem 1.2rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        form button[type="submit"] {
-            align-self: stretch;
-            margin-top: 0.5rem;
-        }
-
-        form div[style*="justify-content: space-between"] {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        form div[style*="justify-content: space-between"] .btn,
-        form div[style*="justify-content: space-between"] button {
-            width: 100%;
-            margin: 0.2rem 0;
-        }
     }
 
     .actions {
@@ -364,36 +232,6 @@ const modernStyles = `
         padding: 1rem;
         border-radius: 8px;
         border: 1px solid var(--border-color);
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    @media (max-width: 767px) {
-        .header-actions {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .header-actions > div {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .header-actions > div .btn {
-            flex: 1;
-            min-width: 120px;
-        }
-
-        .header-actions form {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .header-actions form button {
-            align-self: stretch;
-        }
     }
 
     .fade-in {
@@ -449,7 +287,7 @@ app.get('/panel', (req, res) => {
 
         const fileRows = files.map(file => `
 <tr class="fade-in">
-    <td style="word-break: break-word; max-width: 200px;">${file}</td>
+    <td>${file}</td>
     <td class="actions">
             <a href="/files/${encodeURIComponent(file)}" download class="btn btn-secondary">Download</a>
             <a href="/panel/edit/${encodeURIComponent(file)}" class="btn btn-secondary">Edit</a>
@@ -478,14 +316,12 @@ app.get('/panel', (req, res) => {
                 </div>
                 
                 <form action="/panel/upload" method="POST" enctype="multipart/form-data" style="display: flex; align-items: center; gap: 10px;">
-                    <input type="file" name="file" required style="margin: 0; width: 100%;">
-                       <div style="flex: 1; min-width: 200px;">
-                     <button type="submit" class="btn btn-primary">Upload</button>
+                    <input type="file" name="file" required style="margin: 0;">
+                    <button type="submit" class="btn btn-primary">Upload</button>
         </form>
     </div>
 
         <table>
-                    </div>
             <tr>
                 <th>File Name</th>
                 <th>Actions</th>
@@ -815,9 +651,9 @@ app.get('/chat', (req, res) => {
           position: relative;
       }
       
-      .input-area input {
+      .input-area textarea {
           flex-grow: 1;
-          padding: 1rem 1rem 1rem 3rem;
+          padding: 0.8rem 1rem 0.8rem 3rem;
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 15px;
           background: rgba(15, 23, 42, 0.6);
@@ -825,9 +661,14 @@ app.get('/chat', (req, res) => {
           font-family: 'Poppins', sans-serif;
           font-size: 1rem;
           transition: all 0.3s ease;
+          resize: none;
+          height: 45px; /* Zmniejszona wysokość */
+          max-height: 120px; /* Zmniejszona maksymalna wysokość */
+          overflow-y: auto; /* Add scrollbar when needed */
+          line-height: 1.5;
       }
-      
-      .input-area input:focus {
+
+      .input-area textarea:focus {
           outline: none;
           border-color: #6366f1;
           box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
@@ -1192,7 +1033,7 @@ app.get('/chat', (req, res) => {
         <div class="footer">
             <div class="input-area">
                 <i class="fas fa-message input-icon"></i>
-                <input type="text" id="user-input" placeholder="Napisz wiadomość..." autocomplete="off">
+                <textarea id="user-input" placeholder="Napisz wiadomość... (Shift+Enter dla nowej linii)" autocomplete="off"></textarea>
                 <button id="send-button">
                     <span>Wyślij</span>
                     <i class="fas fa-paper-plane"></i>
@@ -1234,8 +1075,28 @@ app.get('/chat', (req, res) => {
         window.copyCode = function(blockId) {
             const codeElement = document.getElementById(blockId);
             if (!codeElement) return;
-            
-            navigator.clipboard.writeText(codeElement.textContent)
+
+            // Pobierz oryginalny tekst kodu bez formatowania HTML
+            // Tworzymy tymczasowy element, aby wyodrębnić czysty tekst
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = codeElement.innerHTML;
+
+            // Zamień wszystkie <br> i <p> na odpowiednie znaki nowej linii
+            const codeText = tempDiv.innerHTML
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<\/p><p>/gi, '\n')
+                .replace(/<p>/gi, '')
+                .replace(/<\/p>/gi, '\n')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&amp;/g, '&')
+                .replace(/&quot;/g, '"')
+                .replace(/&#39;/g, "'");
+
+            // Usuń zbędne znaczniki HTML
+            const cleanText = codeText.replace(/<[^>]*>/g, '');
+
+            navigator.clipboard.writeText(cleanText)
                 .then(() => {
                     const btn = codeElement.closest('.code-container').querySelector('.copy-btn');
                     const originalText = btn.textContent;
@@ -1275,32 +1136,57 @@ app.get('/chat', (req, res) => {
                 // Dla wiadomości AI używamy marked.js do formatowania Markdown
                 // Skonfiguruj marked.js do obsługi pogrubienia i innych stylów Markdown
                 const renderer = new marked.Renderer();
-                
+
+                // Bezpieczne przetwarzanie kodu HTML
+                renderer.text = function(text) {
+                    return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                };
+
                 // Użyj marked do konwersji Markdown na HTML
                 marked.setOptions({
                     renderer: renderer,
                     breaks: true,
-                    gfm: true
+                    gfm: true,
+                    sanitize: false  // Wyłączamy wbudowane sanitize, bo używamy własnego renderer.text
                 });
-                
+
                 // Przetwórz tekst na HTML z zachowaniem bloków kodu
                 let processedText = text;
-                
+
                 // Najpierw zabezpiecz bloki kodu, aby marked ich nie przetwarzał
                 const codeBlocks = [];
-                processedText = processedText.replace(/<div class="code-container">[\\s\\S]*?<\\/div>/g, function(match) {
-                    codeBlocks.push(match);
+                processedText = processedText.replace(/\`\`\`([\s\S]*?)\`\`\`/g, function(match, code) {
+                    // Escape HTML special characters in code blocks
+                    const escapedCode = code
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    codeBlocks.push(escapedCode);
                     return "{{CODE_BLOCK_" + (codeBlocks.length - 1) + "}}";
                 });
-                
+
                 // Zastosuj formatowanie Markdown
                 processedText = marked.parse(processedText);
-                
-                // Przywróć bloki kodu
-                processedText = processedText.replace(/{{CODE_BLOCK_(\\d+)}}/g, function(match, index) {
-                    return codeBlocks[parseInt(index)];
+
+                // Przywróć bloki kodu z odpowiednim formatowaniem HTML
+                processedText = processedText.replace(/{{CODE_BLOCK_(\d+)}}/g, function(match, index) {
+                    const codeContent = codeBlocks[parseInt(index)];
+                    const codeId = 'code-block-' + Date.now() + '-' + index;
+                    return '<div class="code-container">' +
+                        '<div class="code-header">' +
+                        '<span>Code</span>' +
+                        '<div class="code-actions">' +
+                        '<button class="copy-btn" onclick="copyCode(\'' + codeId + '\')">' +
+                        '<i class="fas fa-copy"></i> Kopiuj' +
+                        '</button>' +
+                        '</div>' +
+                        '</div>' +
+                        '<pre class="code-block"><code id="' + codeId + '">' + codeContent + '</code></pre>' +
+                        '<div class="code-footer">' +
+                        '<div class="mini-counter"><i class="fas fa-code"></i> kod</div>' +
+                        '</div>' +
+                        '</div>';
                 });
-                
+
                 contentDiv.innerHTML = processedText;
             }
             
@@ -1418,9 +1304,16 @@ app.get('/chat', (req, res) => {
         sendButton.addEventListener('click', sendMessage);
         
         // Obsługa klawisza Enter
-        userInput.addEventListener('keypress', function(e) {
+        userInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                sendMessage();
+                if (e.shiftKey) {
+                    // Shift+Enter - dodaj nową linię (domyślne zachowanie)
+                    return true;
+                } else {
+                    // Sam Enter - wyślij wiadomość
+                    e.preventDefault();
+                    sendMessage();
+                }
             }
         });
         
@@ -1515,6 +1408,12 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
 
+            // Preserve line breaks for proper display
+            const formattedCode = escapedCode
+                .split('\n')
+                .map(line => line.trim() === '' ? '&nbsp;' : line)
+                .join('<br>');
+
             // Determine language display name
             let displayLang = 'Code';
             if (language) {
@@ -1532,7 +1431,7 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
                 '</button>' +
                 '</div>' +
                 '</div>' +
-                '<pre class="code-block"><code id="' + blockId + '">' + escapedCode + '</code></pre>' +
+                '<pre class="code-block"><code id="' + blockId + '">' + formattedCode + '</code></pre>' +
                 '<div class="code-footer">' +
                 '<div class="mini-counter"><i class="fas fa-code"></i> kod</div>' +
                 '</div>' +

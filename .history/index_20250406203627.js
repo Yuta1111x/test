@@ -88,22 +88,6 @@ const modernStyles = `
         border: 1px solid var(--border-color);
     }
 
-    @media (max-width: 767px) {
-        .container {
-            width: 95%;
-            padding: 1.5rem;
-            margin: 1rem auto;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .container {
-            width: 98%;
-            padding: 1rem;
-            margin: 0.5rem auto;
-        }
-    }
-
     h1 {
         text-align: center;
         margin-bottom: 2rem;
@@ -111,21 +95,6 @@ const modernStyles = `
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 700;
-        font-size: 2.2rem;
-    }
-
-    @media (max-width: 767px) {
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
     }
 
     a {
@@ -142,19 +111,6 @@ const modernStyles = `
         font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.2s ease;
-        text-align: center;
-    }
-
-    @media (max-width: 767px) {
-        .btn {
-            padding: 0.5rem 0.8rem;
-            font-size: 0.8rem;
-            margin: 0.2rem;
-        }
-
-        td .btn {
-            min-width: 70px;
-        }
     }
 
     .btn-primary {
@@ -191,15 +147,7 @@ const modernStyles = `
         border-collapse: collapse;
         margin: 1.5rem 0;
         border-radius: 8px;
-        overflow-x: auto;
-        display: block;
-    }
-
-    @media (min-width: 768px) {
-        table {
-            display: table;
-            overflow-x: hidden;
-        }
+        overflow: hidden;
     }
 
     th, td {
@@ -218,19 +166,7 @@ const modernStyles = `
         background-color: rgba(255, 255, 255, 0.03);
     }
 
-    @media (max-width: 767px) {
-        th, td {
-            padding: 0.8rem 0.5rem;
-        }
-
-        td.actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.3rem;
-        }
-    }
-
-    input[type="text"],
+    input[type="text"], 
     input[type="file"] {
         width: 100%;
         padding: 0.8rem;
@@ -240,28 +176,6 @@ const modernStyles = `
         border-radius: 6px;
         color: var(--text-primary);
         font-family: 'Inter', sans-serif;
-    }
-
-    @media (max-width: 767px) {
-        input[type="text"],
-        input[type="file"] {
-            padding: 0.7rem;
-            margin: 0.6rem 0;
-            font-size: 0.9rem;
-        }
-    }
-
-    /* Poprawka dla input file na urządzeniach mobilnych */
-    @media (max-width: 480px) {
-        input[type="file"] {
-            padding: 0.5rem;
-            font-size: 0.8rem;
-        }
-
-        /* Styl dla kontenera input file w formularzu upload */
-        .header-actions form div {
-            width: 100%;
-        }
     }
 
     input[type="text"]:focus,
@@ -286,22 +200,6 @@ const modernStyles = `
         resize: vertical;
     }
 
-    @media (max-width: 767px) {
-        textarea {
-            height: 50vh;
-            min-height: 300px;
-            font-size: 14px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        textarea {
-            height: 40vh;
-            min-height: 200px;
-            font-size: 13px;
-        }
-    }
-
     form button[type="submit"] {
         background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
         color: white;
@@ -316,36 +214,6 @@ const modernStyles = `
     form button[type="submit"]:hover {
         background: linear-gradient(to right, #5254cc, #7e4fdb);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    @media (max-width: 767px) {
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        form button[type="submit"] {
-            align-self: flex-end;
-            padding: 0.7rem 1.2rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        form button[type="submit"] {
-            align-self: stretch;
-            margin-top: 0.5rem;
-        }
-
-        form div[style*="justify-content: space-between"] {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        form div[style*="justify-content: space-between"] .btn,
-        form div[style*="justify-content: space-between"] button {
-            width: 100%;
-            margin: 0.2rem 0;
-        }
     }
 
     .actions {
@@ -364,36 +232,6 @@ const modernStyles = `
         padding: 1rem;
         border-radius: 8px;
         border: 1px solid var(--border-color);
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    @media (max-width: 767px) {
-        .header-actions {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .header-actions > div {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .header-actions > div .btn {
-            flex: 1;
-            min-width: 120px;
-        }
-
-        .header-actions form {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .header-actions form button {
-            align-self: stretch;
-        }
     }
 
     .fade-in {
@@ -412,20 +250,21 @@ app.get('/', (req, res) => {
 <html>
 <head>
     <title>Files Portal</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     ${modernStyles}
 </head>
 <body>
     <div class="container fade-in">
-        <h1>Welcome to Files Portal</h1>
+        <h1>Portal plików</h1>
         <div style="text-align: center; margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; align-items: center;">
-            <a href="/panel" class="btn btn-primary">Go to File Management</a>
+            <a href="/panel" class="btn btn-primary">Zarządzanie plikami</a>
             <a href="/chat" class="btn btn-primary" style="background: linear-gradient(to right, #9333ea, #3b82f6);">
                 <span style="display: flex; align-items: center; gap: 8px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M8 1a5 5 0 0 0-5 5v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a6 6 0 1 1 12 0v6a2.5 2.5 0 0 1-2.5 2.5H9.366a1 1 0 0 1-.866.5h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 .866.5H11.5A1.5 1.5 0 0 0 13 12h-1a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1V6a5 5 0 0 0-5-5z"/>
                     </svg>
-                    Chat with YutAi
+                    Czat z YutAi
                 </span>
             </a>
         </div>
@@ -449,13 +288,13 @@ app.get('/panel', (req, res) => {
 
         const fileRows = files.map(file => `
 <tr class="fade-in">
-    <td style="word-break: break-word; max-width: 200px;">${file}</td>
+    <td>${file}</td>
     <td class="actions">
-            <a href="/files/${encodeURIComponent(file)}" download class="btn btn-secondary">Download</a>
-            <a href="/panel/edit/${encodeURIComponent(file)}" class="btn btn-secondary">Edit</a>
-            <a href="/panel/rename/${encodeURIComponent(file)}" class="btn btn-secondary">Rename</a>
-            <a href="/panel/redirect/${encodeURIComponent(file)}" class="btn btn-secondary">Open</a>
-            <a href="/panel/delete/${encodeURIComponent(file)}" class="btn btn-danger">Delete</a>
+            <a href="/files/${encodeURIComponent(file)}" download class="btn btn-secondary">Pobierz</a>
+            <a href="/panel/edit/${encodeURIComponent(file)}" class="btn btn-secondary">Edytuj</a>
+            <a href="/panel/rename/${encodeURIComponent(file)}" class="btn btn-secondary">Zmień nazwę</a>
+            <a href="/panel/redirect/${encodeURIComponent(file)}" class="btn btn-secondary">Otwórz</a>
+            <a href="/panel/delete/${encodeURIComponent(file)}" class="btn btn-danger">Usuń</a>
     </td>
 </tr>
 `).join('');
@@ -463,32 +302,31 @@ app.get('/panel', (req, res) => {
         res.send(`
 <html>
 <head>
-        <title>File Management</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Zarządzanie plikami</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         ${modernStyles}
 </head>
 <body>
         <div class="container fade-in">
-            <h1>File Management</h1>
-            
+            <h1>Zarządzanie plikami</h1>
+
             <div class="header-actions">
                 <div>
-                    <a href="/panel/create" class="btn btn-primary">Create New File</a>
+                    <a href="/panel/create" class="btn btn-primary">Utwórz nowy plik</a>
                     <a href="/" class="btn btn-secondary">Powrót do strony głównej</a>
                 </div>
-                
-                <form action="/panel/upload" method="POST" enctype="multipart/form-data" style="display: flex; align-items: center; gap: 10px;">
-                    <input type="file" name="file" required style="margin: 0; width: 100%;">
-                       <div style="flex: 1; min-width: 200px;">
-                     <button type="submit" class="btn btn-primary">Upload</button>
+
+                <form action="/panel/upload" method="POST" enctype="multipart/form-data" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <input type="file" name="file" required style="margin: 0;">
+                    <button type="submit" class="btn btn-primary">Prześlij</button>
         </form>
     </div>
 
         <table>
-                    </div>
             <tr>
-                <th>File Name</th>
-                <th>Actions</th>
+                <th>Nazwa pliku</th>
+                <th>Akcje</th>
             </tr>
             ${fileRows}
         </table>
@@ -503,19 +341,20 @@ app.get('/panel/create', (req, res) => {
     res.send(`
 <html>
 <head>
-    <title>Create New File</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utwórz nowy plik</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     ${modernStyles}
 </head>
 <body>
     <div class="container fade-in">
-        <h1>Create New File</h1>
+        <h1>Utwórz nowy plik</h1>
         <form action="/panel/create" method="POST">
-            <input type="text" name="filename" placeholder="File name" required>
-            <textarea name="content" placeholder="File content"></textarea>
-            <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
-                <a href="/panel" class="btn btn-secondary">Back</a>
-                <button type="submit" class="btn btn-primary">Create</button>
+            <input type="text" name="filename" placeholder="Nazwa pliku" required>
+            <textarea name="content" placeholder="Zawartość pliku"></textarea>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <a href="/panel" class="btn btn-secondary">Powrót</a>
+                <button type="submit" class="btn btn-primary">Utwórz</button>
             </div>
         </form>
     </div>
@@ -544,22 +383,23 @@ app.post('/panel/create', (req, res) => {
 
 app.get('/panel/edit/:filename', (req, res) => {
     fs.readFile(path.join(__dirname, 'pliki', req.params.filename), 'utf8', (err, data) => {
-        if (err) return res.send('Error reading file.');
+        if (err) return res.send('Błąd odczytu pliku.');
         res.send(`
 <html>
 <head>
-    <title>Edit File</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edycja pliku</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     ${modernStyles}
 </head>
 <body>
     <div class="container fade-in">
-        <h1>Edit File: ${req.params.filename}</h1>
+        <h1>Edycja pliku: ${req.params.filename}</h1>
         <form action="/panel/edit/${encodeURIComponent(req.params.filename)}" method="POST">
             <textarea name="content">${data}</textarea>
-            <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
-                <a href="/panel" class="btn btn-secondary">Back</a>
-                <button type="submit" class="btn btn-primary">Save</button>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <a href="/panel" class="btn btn-secondary">Powrót</a>
+                <button type="submit" class="btn btn-primary">Zapisz</button>
             </div>
         </form>
     </div>
@@ -573,18 +413,19 @@ app.get('/panel/rename/:filename', (req, res) => {
     res.send(`
 <html>
 <head>
-    <title>Rename File</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zmiana nazwy pliku</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     ${modernStyles}
 </head>
 <body>
     <div class="container fade-in">
-        <h1>Rename File: ${req.params.filename}</h1>
+        <h1>Zmiana nazwy pliku: ${req.params.filename}</h1>
         <form action="/panel/rename/${encodeURIComponent(req.params.filename)}" method="POST">
-            <input type="text" name="newName" placeholder="New file name" required>
-            <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
-                <a href="/panel" class="btn btn-secondary">Back</a>
-                <button type="submit" class="btn btn-primary">Rename</button>
+            <input type="text" name="newName" placeholder="Nowa nazwa pliku" required>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <a href="/panel" class="btn btn-secondary">Powrót</a>
+                <button type="submit" class="btn btn-primary">Zmień nazwę</button>
             </div>
         </form>
     </div>
@@ -643,7 +484,8 @@ app.get('/chat', (req, res) => {
 <html>
 <head>
     <title>YutAi - Inteligentny Asystent</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -694,6 +536,20 @@ app.get('/chat', (req, res) => {
           align-items: center;
           border-bottom: 1px solid rgba(255, 255, 255, 0.1);
           background: rgba(15, 23, 42, 0.5);
+          flex-wrap: wrap;
+          gap: 1rem;
+      }
+
+      @media (max-width: 480px) {
+          .header {
+              padding: 1rem;
+              justify-content: center;
+              text-align: center;
+          }
+
+          .logo {
+              margin-bottom: 0.5rem;
+          }
       }
       
       .logo {
@@ -773,6 +629,16 @@ app.get('/chat', (req, res) => {
           position: relative;
           animation: fadeIn 0.3s ease forwards;
           line-height: 1.5;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+      }
+
+      @media (max-width: 480px) {
+          .message {
+              max-width: 90%;
+              padding: 0.8rem 1rem;
+              font-size: 0.95rem;
+          }
       }
       
       @keyframes fadeIn {
@@ -813,8 +679,9 @@ app.get('/chat', (req, res) => {
           display: flex;
           gap: 10px;
           position: relative;
+          flex-wrap: wrap;
       }
-      
+
       .input-area input {
           flex-grow: 1;
           padding: 1rem 1rem 1rem 3rem;
@@ -825,6 +692,7 @@ app.get('/chat', (req, res) => {
           font-family: 'Poppins', sans-serif;
           font-size: 1rem;
           transition: all 0.3s ease;
+          min-width: 0; /* Zapobiega przepełnieniu na małych ekranach */
       }
       
       .input-area input:focus {
@@ -854,6 +722,15 @@ app.get('/chat', (req, res) => {
           display: flex;
           align-items: center;
           gap: 10px;
+          height: 50px; /* Stała wysokość przycisku */
+      }
+
+      @media (max-width: 768px) {
+          .input-area button {
+              width: 100%;
+              justify-content: center;
+              margin-top: 0.5rem;
+          }
       }
       
       .input-area button:hover {
@@ -869,6 +746,24 @@ app.get('/chat', (req, res) => {
           display: flex;
           justify-content: space-between;
           margin-top: 1rem;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+      }
+
+      @media (max-width: 768px) {
+          .tools-bar {
+              justify-content: center;
+          }
+
+          .file-upload {
+              width: 100%;
+          }
+
+          .file-upload-btn {
+              width: 100%;
+              justify-content: center;
+              text-align: center;
+          }
       }
       
       .image-preview {
@@ -956,6 +851,25 @@ app.get('/chat', (req, res) => {
           line-height: 1.5;
           color: #e2e8f0;
           border-left: 3px solid #6366f1;
+          overflow-x: auto;
+      }
+
+      @media (max-width: 480px) {
+          .code-block {
+              padding: 0.7rem;
+              font-size: 0.8rem;
+          }
+
+          .code-header {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 0.5rem;
+          }
+
+          .code-actions {
+              width: 100%;
+              justify-content: space-between;
+          }
       }
       
       .code-container {
@@ -1148,22 +1062,72 @@ app.get('/chat', (req, res) => {
               height: 100vh;
               margin: 0;
               border-radius: 0;
+              padding: 1rem;
           }
-          
+
           .message {
               max-width: 90%;
           }
-          
+
           .header, .footer {
               padding: 1rem;
           }
-          
+
           .chat-area {
               padding: 1rem;
           }
-          
+
           h1 {
               font-size: 1.5rem;
+          }
+
+          .header-actions {
+              flex-direction: column;
+              gap: 1rem;
+          }
+
+          .header-actions form {
+              width: 100%;
+          }
+
+          .actions {
+              flex-direction: column;
+              width: 100%;
+          }
+
+          .actions a {
+              width: 100%;
+              text-align: center;
+              margin: 0.2rem 0;
+          }
+
+          table {
+              display: block;
+              overflow-x: auto;
+          }
+
+          th, td {
+              min-width: 100px;
+          }
+
+          .input-area {
+              flex-wrap: wrap;
+          }
+
+          .input-area button {
+              width: 100%;
+              margin-top: 0.5rem;
+          }
+      }
+
+      @media (max-width: 480px) {
+          .container {
+              padding: 0.5rem;
+          }
+
+          .btn {
+              padding: 0.5rem 1rem;
+              font-size: 0.8rem;
           }
       }
     </style>

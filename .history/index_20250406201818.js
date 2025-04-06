@@ -10,20 +10,18 @@ const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = 'AIzaSyAP1EOpnlAhNRh9MI41v8EHtyRGylNR_bA';
 
 // Upewnij się, że istnieje folder temp
-const tempDir = path.join(__dirname, 'temp');
-if (!fs.existsSync(tempDir)) {
-    fs.mkdirSync(tempDir);
+if (!fs.existsSync('temp')) {
+    fs.mkdirSync('temp');
 }
 
 // Configure multer to preserve original filename for file panel
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         // Make sure the "pliki" directory exists
-        const plikiDir = path.join(__dirname, 'pliki');
-        if (!fs.existsSync(plikiDir)) {
-            fs.mkdirSync(plikiDir);
+        if (!fs.existsSync('pliki')) {
+            fs.mkdirSync('pliki');
         }
-        cb(null, plikiDir);
+        cb(null, 'pliki/');
     },
     filename: (req, file, cb) => {
         cb(null, file.originalname);
@@ -34,7 +32,7 @@ const upload = multer({ storage: storage });
 // Configure multer for temporary image uploads
 const tempStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, tempDir);
+        cb(null, 'temp/');
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + '-' + file.originalname);
@@ -44,7 +42,7 @@ const tempUpload = multer({ storage: tempStorage });
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public'), { index: false }));
+app.use(express.static('public', { index: false }));
 
 // Modern clean styles
 const modernStyles = `
@@ -88,22 +86,6 @@ const modernStyles = `
         border: 1px solid var(--border-color);
     }
 
-    @media (max-width: 767px) {
-        .container {
-            width: 95%;
-            padding: 1.5rem;
-            margin: 1rem auto;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .container {
-            width: 98%;
-            padding: 1rem;
-            margin: 0.5rem auto;
-        }
-    }
-
     h1 {
         text-align: center;
         margin-bottom: 2rem;
@@ -111,21 +93,6 @@ const modernStyles = `
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 700;
-        font-size: 2.2rem;
-    }
-
-    @media (max-width: 767px) {
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
     }
 
     a {
@@ -142,19 +109,6 @@ const modernStyles = `
         font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.2s ease;
-        text-align: center;
-    }
-
-    @media (max-width: 767px) {
-        .btn {
-            padding: 0.5rem 0.8rem;
-            font-size: 0.8rem;
-            margin: 0.2rem;
-        }
-
-        td .btn {
-            min-width: 70px;
-        }
     }
 
     .btn-primary {
@@ -191,15 +145,7 @@ const modernStyles = `
         border-collapse: collapse;
         margin: 1.5rem 0;
         border-radius: 8px;
-        overflow-x: auto;
-        display: block;
-    }
-
-    @media (min-width: 768px) {
-        table {
-            display: table;
-            overflow-x: hidden;
-        }
+        overflow: hidden;
     }
 
     th, td {
@@ -218,19 +164,7 @@ const modernStyles = `
         background-color: rgba(255, 255, 255, 0.03);
     }
 
-    @media (max-width: 767px) {
-        th, td {
-            padding: 0.8rem 0.5rem;
-        }
-
-        td.actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.3rem;
-        }
-    }
-
-    input[type="text"],
+    input[type="text"], 
     input[type="file"] {
         width: 100%;
         padding: 0.8rem;
@@ -240,28 +174,6 @@ const modernStyles = `
         border-radius: 6px;
         color: var(--text-primary);
         font-family: 'Inter', sans-serif;
-    }
-
-    @media (max-width: 767px) {
-        input[type="text"],
-        input[type="file"] {
-            padding: 0.7rem;
-            margin: 0.6rem 0;
-            font-size: 0.9rem;
-        }
-    }
-
-    /* Poprawka dla input file na urządzeniach mobilnych */
-    @media (max-width: 480px) {
-        input[type="file"] {
-            padding: 0.5rem;
-            font-size: 0.8rem;
-        }
-
-        /* Styl dla kontenera input file w formularzu upload */
-        .header-actions form div {
-            width: 100%;
-        }
     }
 
     input[type="text"]:focus,
@@ -286,22 +198,6 @@ const modernStyles = `
         resize: vertical;
     }
 
-    @media (max-width: 767px) {
-        textarea {
-            height: 50vh;
-            min-height: 300px;
-            font-size: 14px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        textarea {
-            height: 40vh;
-            min-height: 200px;
-            font-size: 13px;
-        }
-    }
-
     form button[type="submit"] {
         background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
         color: white;
@@ -316,36 +212,6 @@ const modernStyles = `
     form button[type="submit"]:hover {
         background: linear-gradient(to right, #5254cc, #7e4fdb);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    @media (max-width: 767px) {
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        form button[type="submit"] {
-            align-self: flex-end;
-            padding: 0.7rem 1.2rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        form button[type="submit"] {
-            align-self: stretch;
-            margin-top: 0.5rem;
-        }
-
-        form div[style*="justify-content: space-between"] {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        form div[style*="justify-content: space-between"] .btn,
-        form div[style*="justify-content: space-between"] button {
-            width: 100%;
-            margin: 0.2rem 0;
-        }
     }
 
     .actions {
@@ -364,36 +230,6 @@ const modernStyles = `
         padding: 1rem;
         border-radius: 8px;
         border: 1px solid var(--border-color);
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    @media (max-width: 767px) {
-        .header-actions {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .header-actions > div {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .header-actions > div .btn {
-            flex: 1;
-            min-width: 120px;
-        }
-
-        .header-actions form {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .header-actions form button {
-            align-self: stretch;
-        }
     }
 
     .fade-in {
@@ -449,7 +285,7 @@ app.get('/panel', (req, res) => {
 
         const fileRows = files.map(file => `
 <tr class="fade-in">
-    <td style="word-break: break-word; max-width: 200px;">${file}</td>
+    <td>${file}</td>
     <td class="actions">
             <a href="/files/${encodeURIComponent(file)}" download class="btn btn-secondary">Download</a>
             <a href="/panel/edit/${encodeURIComponent(file)}" class="btn btn-secondary">Edit</a>
@@ -478,14 +314,12 @@ app.get('/panel', (req, res) => {
                 </div>
                 
                 <form action="/panel/upload" method="POST" enctype="multipart/form-data" style="display: flex; align-items: center; gap: 10px;">
-                    <input type="file" name="file" required style="margin: 0; width: 100%;">
-                       <div style="flex: 1; min-width: 200px;">
-                     <button type="submit" class="btn btn-primary">Upload</button>
+                    <input type="file" name="file" required style="margin: 0;">
+                    <button type="submit" class="btn btn-primary">Upload</button>
         </form>
     </div>
 
         <table>
-                    </div>
             <tr>
                 <th>File Name</th>
                 <th>Actions</th>
@@ -598,20 +432,12 @@ app.post('/panel/upload', upload.single('file'), (req, res) => res.redirect('/pa
 
 app.get('/panel/delete/:filename', (req, res) => {
     fs.unlink(path.join(__dirname, 'pliki', req.params.filename), (err) => {
-        if (err) {
-            console.error('Error deleting file:', err);
-            return res.send('Error deleting file. Please try again.');
-        }
         res.redirect('/panel');
     });
 });
 
 app.post('/panel/edit/:filename', (req, res) => {
     fs.writeFile(path.join(__dirname, 'pliki', req.params.filename), req.body.content, 'utf8', (err) => {
-        if (err) {
-            console.error('Error saving file:', err);
-            return res.send('Error saving file. Please try again.');
-        }
         res.redirect('/panel');
     });
 });
@@ -620,13 +446,7 @@ app.post('/panel/rename/:filename', (req, res) => {
     fs.rename(
         path.join(__dirname, 'pliki', req.params.filename),
         path.join(__dirname, 'pliki', req.body.newName),
-        (err) => {
-            if (err) {
-                console.error('Error renaming file:', err);
-                return res.send('Error renaming file. Please try again.');
-            }
-            res.redirect('/panel');
-        }
+        () => res.redirect('/panel')
     );
 });
 
@@ -635,7 +455,7 @@ app.get('/panel/redirect/:filename', (req, res) => {
 });
 
 // Dodaj endpoint do udostępniania plików z folderu pliki
-app.use('/files', express.static(path.join(__dirname, 'pliki')));
+app.use('/files', express.static('pliki'));
 
 // Add Gemini chat page
 app.get('/chat', (req, res) => {
@@ -1506,38 +1326,14 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
 
         // Format code blocks properly
         // Replace markdown code blocks with styled HTML code containers
-        aiReply = aiReply.replace(/\`\`\`(.*)\n([\s\S]*?)\`\`\`/g, function(match, language, code) {
-            // Generate a unique ID for this code block
-            const blockId = 'code-block-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-
-            // Escape HTML in the code content
-            const escapedCode = code
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
-
-            // Determine language display name
-            let displayLang = 'Code';
-            if (language) {
-                if (language === 'c++' || language === 'cpp') displayLang = 'C++';
-                else if (language === 'js') displayLang = 'JavaScript';
-                else displayLang = language.charAt(0).toUpperCase() + language.slice(1);
-            }
-
-            return '<div class="code-container">' +
-                '<div class="code-header">' +
-                '<span>' + displayLang + '</span>' +
-                '<div class="code-actions">' +
-                '<button class="copy-btn" onclick="copyCode(\'' + blockId + '\')">' +
-                '<i class="fas fa-copy"></i> Kopiuj' +
-                '</button>' +
-                '</div>' +
-                '</div>' +
-                '<pre class="code-block"><code id="' + blockId + '">' + escapedCode + '</code></pre>' +
-                '<div class="code-footer">' +
-                '<div class="mini-counter"><i class="fas fa-code"></i> kod</div>' +
-                '</div>' +
-                '</div>';
-        });
+        aiReply = aiReply.replace(/```c\+\+/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```cpp/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/KOD C\+\+:/g, '<div class="code-container"><div class="code-header"><span>C++</span></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```python/g, '<div class="code-container"><div class="code-header"><span>Python</span></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```javascript/g, '<div class="code-container"><div class="code-header"><span>JavaScript</span></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```html/g, '<div class="code-container"><div class="code-header"><span>HTML</span></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```css/g, '<div class="code-container"><div class="code-header"><span>CSS</span></div><pre class="code-block"><code id="code-block-1">');
+        aiReply = aiReply.replace(/```/g, '</code></pre><div class="code-footer"><div class="mini-counter"><i class="fas fa-code"></i> kod</div></div></div>');
 
         // If image was uploaded temporarily, delete it after processing
         if (req.file) {
@@ -1549,31 +1345,7 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
         res.json({ reply: aiReply });
     } catch (error) {
         console.error('Error calling Gemini API:', error);
-
-        // More detailed error handling
-        let errorMessage = 'Przepraszam, wystąpił błąd. Spróbuj ponownie później.';
-
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.error('API Error Response:', error.response.data);
-            console.error('Status:', error.response.status);
-
-            if (error.response.status === 400) {
-                errorMessage = 'Przepraszam, nie mogę przetworzyć tego zapytania. Spróbuj inaczej sformułować pytanie.';
-            } else if (error.response.status === 429) {
-                errorMessage = 'Przekroczono limit zapytań do API. Proszę spróbować ponownie za chwilę.';
-            }
-        } else if (error.request) {
-            // The request was made but no response was received
-            console.error('No response received:', error.request);
-            errorMessage = 'Nie udało się połączyć z serwerem AI. Sprawdź swoje połączenie internetowe.';
-        }
-
-        res.status(500).json({
-            error: 'Failed to get response from Gemini',
-            reply: errorMessage
-        });
+        res.status(500).json({ error: 'Failed to get response from Gemini', reply: 'Przepraszam, wystąpił błąd. Spróbuj ponownie później.' });
     }
 });
 
