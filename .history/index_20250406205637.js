@@ -1230,7 +1230,78 @@ app.get('/chat', (req, res) => {
         
         let selectedImage = null;
         
-        // Inicjalizacja zmiennych
+        // Funkcja kopiowania kodu
+        window.copyCode = function(blockId) {
+            const codeElement = document.getElementById(blockId);
+            if (!codeElement) return;
+
+            // Pobieramy pełny tekst z elementu kodu i dekodujemy encje HTML
+            const encodedText = codeElement.innerHTML;
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = encodedText;
+            const decodedText = tempDiv.textContent;
+
+            // Metoda 1: Używamy elementu textarea do kopiowania
+            const textarea = document.createElement('textarea');
+            textarea.value = decodedText;
+
+            // Ukrywamy element, ale dodajemy go do DOM
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = 0;
+            textarea.style.width = '1px';
+            textarea.style.height = '1px';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+
+            // Zaznaczamy cały tekst
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+
+            // Próbujemy skopiować
+            let successful = false;
+            try {
+                successful = document.execCommand('copy');
+            } catch (err) {
+                successful = false;
+            }
+
+            // Metoda 2: Jeśli pierwsza metoda nie zadziałała, próbujemy użyć Clipboard API
+            if (!successful) {
+                try {
+                    navigator.clipboard.writeText(decodedText).then(() => {
+                        successful = true;
+                    }).catch(() => {
+                        successful = false;
+                    });
+                } catch (err) {
+                    successful = false;
+                }
+            }
+
+            // Metoda 3: Ostatnia próba - używamy synchronicznego API schowka
+            if (!successful) {
+                try {
+                    window.clipboardData.setData('Text', decodedText);
+                    successful = true;
+                } catch (err) {
+                    successful = false;
+                }
+            }
+
+            // Usuwamy element textarea
+            document.body.removeChild(textarea);
+
+            // Aktualizujemy tekst przycisku
+            const btn = codeElement.closest('.code-container').querySelector('.copy-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Skopiowano!';
+
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 2000);
+
+            return successful;
+        };
         
         // Formatowanie czasu
         function formatTime() {
@@ -1492,7 +1563,12 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
 
         // Format code blocks properly
         // Replace markdown code blocks with styled HTML code containers
+        let codeBlockCounter = 0;
         aiReply = aiReply.replace(/\`\`\`(.*)\n([\s\S]*?)\`\`\`/g, function(match, language, code) {
+            // Generate a unique ID for this code block
+            codeBlockCounter++;
+            const blockId = 'code-block-' + Date.now() + '-' + codeBlockCounter;
+
             // Escape HTML in the code content
             const escapedCode = code
                 .replace(/</g, '&lt;')
@@ -1509,8 +1585,13 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
             return '<div class="code-container">' +
                 '<div class="code-header">' +
                 '<span>' + displayLang + '</span>' +
+                '<div class="code-actions">' +
+                '<button class="copy-btn" onclick="copyCode(\'' + blockId + '\')">' +
+                '<i class="fas fa-copy"></i> Kopiuj' +
+                '</button>' +
                 '</div>' +
-                '<pre class="code-block"><code>' + escapedCode + '</code></pre>' +
+                '</div>' +
+                '<pre class="code-block"><code id="' + blockId + '">' + escapedCode + '</code></pre>' +
                 '<div class="code-footer">' +
                 '<div class="mini-counter"><i class="fas fa-code"></i> kod</div>' +
                 '</div>' +

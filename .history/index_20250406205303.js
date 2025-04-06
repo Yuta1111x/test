@@ -1230,7 +1230,57 @@ app.get('/chat', (req, res) => {
         
         let selectedImage = null;
         
-        // Inicjalizacja zmiennych
+        // Funkcja kopiowania kodu
+        window.copyCode = function(blockId) {
+            const codeElement = document.getElementById(blockId);
+            if (!codeElement) return;
+
+            // Tworzymy tymczasowy element textarea, aby zachować formatowanie tekstu
+            const textarea = document.createElement('textarea');
+            textarea.value = codeElement.textContent;
+            textarea.style.position = 'fixed';  // Poza widokiem
+            textarea.style.opacity = 0;
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            try {
+                // Próbujemy skopiować za pomocą document.execCommand
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    const btn = codeElement.closest('.code-container').querySelector('.copy-btn');
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Skopiowano!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                } else {
+                    // Jeśli execCommand nie zadziała, próbujemy użyć Clipboard API
+                    navigator.clipboard.writeText(textarea.value)
+                        .then(() => {
+                            const btn = codeElement.closest('.code-container').querySelector('.copy-btn');
+                            const originalText = btn.textContent;
+                            btn.textContent = 'Skopiowano!';
+                            setTimeout(() => {
+                                btn.textContent = originalText;
+                            }, 2000);
+                        });
+                }
+            } catch (err) {
+                // Jeśli wystąpi błąd, próbujemy użyć Clipboard API jako fallback
+                navigator.clipboard.writeText(textarea.value)
+                    .then(() => {
+                        const btn = codeElement.closest('.code-container').querySelector('.copy-btn');
+                        const originalText = btn.textContent;
+                        btn.textContent = 'Skopiowano!';
+                        setTimeout(() => {
+                            btn.textContent = originalText;
+                        }, 2000);
+                    });
+            } finally {
+                // Usuwamy tymczasowy element
+                document.body.removeChild(textarea);
+            }
+        };
         
         // Formatowanie czasu
         function formatTime() {
@@ -1493,6 +1543,9 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
         // Format code blocks properly
         // Replace markdown code blocks with styled HTML code containers
         aiReply = aiReply.replace(/\`\`\`(.*)\n([\s\S]*?)\`\`\`/g, function(match, language, code) {
+            // Generate a unique ID for this code block
+            const blockId = 'code-block-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+
             // Escape HTML in the code content
             const escapedCode = code
                 .replace(/</g, '&lt;')
@@ -1509,8 +1562,13 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
             return '<div class="code-container">' +
                 '<div class="code-header">' +
                 '<span>' + displayLang + '</span>' +
+                '<div class="code-actions">' +
+                '<button class="copy-btn" onclick="copyCode(\'' + blockId + '\')">' +
+                '<i class="fas fa-copy"></i> Kopiuj' +
+                '</button>' +
                 '</div>' +
-                '<pre class="code-block"><code>' + escapedCode + '</code></pre>' +
+                '</div>' +
+                '<pre class="code-block"><code id="' + blockId + '">' + escapedCode + '</code></pre>' +
                 '<div class="code-footer">' +
                 '<div class="mini-counter"><i class="fas fa-code"></i> kod</div>' +
                 '</div>' +
