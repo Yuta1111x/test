@@ -1645,7 +1645,7 @@ function executeGitCommands() {
             let pushCommand = 'git push origin main';
 
             // Jeśli token jest dostępny i nie jest domyślną wartością, użyj go bezpośrednio w komendzie push
-            if (GIT_TOKEN && GIT_TOKEN !== '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') {
+            if (GIT_TOKEN && GIT_TOKEN !== 'ghp_your_github_token_here') {
                 const repoUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/repo.git`;
                 pushCommand = `git push ${repoUrl} main`;
             }

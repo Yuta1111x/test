@@ -9,46 +9,6 @@ const { exec } = require('child_process'); // Dodajemy moduł do wykonywania kom
 const app = express();
 const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = 'AIzaSyAP1EOpnlAhNRh9MI41v8EHtyRGylNR_bA';
-const GIT_TOKEN = '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'; // Zastąp tym właściwym tokenem GitHub
-
-// Inicjalizacja konfiguracji git
-function initGitConfig() {
-    console.log('Inicjalizacja konfiguracji git...');
-
-    // Ustawienie nazwy użytkownika git
-    exec('git config --global user.name "Yuta1111x"', { cwd: __dirname }, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Błąd podczas ustawiania nazwy użytkownika git: ${error.message}`);
-            return;
-        }
-        console.log('Nazwa użytkownika git została ustawiona pomyślnie.');
-
-        // Ustawienie adresu email git
-        exec('git config --global user.email "yoyuta1111x@gmail.com"', { cwd: __dirname }, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Błąd podczas ustawiania adresu email git: ${error.message}`);
-                return;
-            }
-            console.log('Adres email git został ustawiony pomyślnie.');
-
-            // Jeśli token jest dostępny, skonfiguruj go do używania z git
-            if (GIT_TOKEN && GIT_TOKEN !== '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') {
-                // Konfiguracja tokena dla GitHub
-                const remoteUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/repo.git`;
-                exec(`git remote set-url origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
-                    if (error) {
-                        console.error(`Błąd podczas konfiguracji tokena git: ${error.message}`);
-                        return;
-                    }
-                    console.log('Token git został skonfigurowany pomyślnie.');
-                });
-            }
-        });
-    });
-}
-
-// Wywołaj inicjalizację konfiguracji git na starcie
-initGitConfig();
 
 // Upewnij się, że istnieje folder temp
 const tempDir = path.join(__dirname, 'temp');
@@ -1641,22 +1601,13 @@ function executeGitCommands() {
             console.log('git commit -m "automat" - wykonano pomyślnie');
 
             // Po pomyślnym wykonaniu git commit, wykonaj git push
-            // Jeśli token jest dostępny, użyj go do push
-            let pushCommand = 'git push origin main';
-
-            // Jeśli token jest dostępny i nie jest domyślną wartością, użyj go bezpośrednio w komendzie push
-            if (GIT_TOKEN && GIT_TOKEN !== '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') {
-                const repoUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/repo.git`;
-                pushCommand = `git push ${repoUrl} main`;
-            }
-
-            exec(pushCommand, { cwd: __dirname }, (error, stdout, stderr) => {
+            exec('git push origin main', { cwd: __dirname }, (error, stdout, stderr) => {
                 if (error) {
                     console.error(`Błąd podczas wykonywania git push: ${error.message}`);
                     return;
                 }
 
-                console.log('git push - wykonano pomyślnie');
+                console.log('git push origin main - wykonano pomyślnie');
                 console.log('Wszystkie komendy git zostały wykonane pomyślnie!');
             });
         });

@@ -9,7 +9,7 @@ const { exec } = require('child_process'); // Dodajemy moduł do wykonywania kom
 const app = express();
 const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = 'AIzaSyAP1EOpnlAhNRh9MI41v8EHtyRGylNR_bA';
-const GIT_TOKEN = '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'; // Zastąp tym właściwym tokenem GitHub
+const GIT_TOKEN = 'ghp_your_github_token_here'; // Zastąp tym właściwym tokenem GitHub
 
 // Inicjalizacja konfiguracji git
 function initGitConfig() {
@@ -32,7 +32,7 @@ function initGitConfig() {
             console.log('Adres email git został ustawiony pomyślnie.');
 
             // Jeśli token jest dostępny, skonfiguruj go do używania z git
-            if (GIT_TOKEN && GIT_TOKEN !== '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') {
+            if (GIT_TOKEN && GIT_TOKEN !== 'ghp_your_github_token_here') {
                 // Konfiguracja tokena dla GitHub
                 const remoteUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/repo.git`;
                 exec(`git remote set-url origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
@@ -1645,7 +1645,7 @@ function executeGitCommands() {
             let pushCommand = 'git push origin main';
 
             // Jeśli token jest dostępny i nie jest domyślną wartością, użyj go bezpośrednio w komendzie push
-            if (GIT_TOKEN && GIT_TOKEN !== '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') {
+            if (GIT_TOKEN && GIT_TOKEN !== 'ghp_your_github_token_here') {
                 const repoUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/repo.git`;
                 pushCommand = `git push ${repoUrl} main`;
             }

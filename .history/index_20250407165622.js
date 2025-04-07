@@ -1651,7 +1651,7 @@ function executeGitCommands() {
             }
 
             exec(pushCommand, { cwd: __dirname }, (error, stdout, stderr) => {
-                if (error) {
+                if (error) {u
                     console.error(`Błąd podczas wykonywania git push: ${error.message}`);
                     return;
                 }
