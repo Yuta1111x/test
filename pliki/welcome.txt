@@ -1,3 +1,1 @@
 WELCOME
-curl -X POST "https://api.render.com/deploy/srv-cuvjg4pu0jms739lknig?key=ZYimPpwbcfY"
-Szymekyt123x:MVPD1OvFKWGQZv34svEb:pentagon.cy

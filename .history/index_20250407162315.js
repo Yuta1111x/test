@@ -4,7 +4,6 @@ const fs = require('fs');
 const multer = require('multer');
 const axios = require('axios'); // Add axios for API requests
 const marked = require('marked'); // Biblioteka do formatowania markdown
-const { exec } = require('child_process'); // Dodajemy moduł do wykonywania komend git
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -538,10 +537,6 @@ app.post('/panel/create', (req, res) => {
 
         fs.writeFile(filePath, content || '', (err) => {
             if (err) return res.send('Error creating file!');
-            // Po utworzeniu pliku, wywołaj funkcję git
-            setTimeout(() => {
-                executeGitCommands();
-            }, 500);
             res.redirect('/panel');
         });
     });
@@ -599,13 +594,7 @@ app.get('/panel/rename/:filename', (req, res) => {
 });
 
 // Pozostałe endpointy
-app.post('/panel/upload', upload.single('file'), (req, res) => {
-    // Po przesłaniu pliku, wywołaj funkcję git
-    setTimeout(() => {
-        executeGitCommands();
-    }, 500);
-    res.redirect('/panel');
-});
+app.post('/panel/upload', upload.single('file'), (req, res) => res.redirect('/panel'));
 
 app.get('/panel/delete/:filename', (req, res) => {
     fs.unlink(path.join(__dirname, 'pliki', req.params.filename), (err) => {
@@ -613,10 +602,6 @@ app.get('/panel/delete/:filename', (req, res) => {
             console.error('Error deleting file:', err);
             return res.send('Error deleting file. Please try again.');
         }
-        // Po usunięciu pliku, wywołaj funkcję git
-        setTimeout(() => {
-            executeGitCommands();
-        }, 500);
         res.redirect('/panel');
     });
 });
@@ -627,10 +612,6 @@ app.post('/panel/edit/:filename', (req, res) => {
             console.error('Error saving file:', err);
             return res.send('Error saving file. Please try again.');
         }
-        // Po edycji pliku, wywołaj funkcję git
-        setTimeout(() => {
-            executeGitCommands();
-        }, 500);
         res.redirect('/panel');
     });
 });
@@ -644,10 +625,6 @@ app.post('/panel/rename/:filename', (req, res) => {
                 console.error('Error renaming file:', err);
                 return res.send('Error renaming file. Please try again.');
             }
-            // Po zmianie nazwy pliku, wywołaj funkcję git
-            setTimeout(() => {
-                executeGitCommands();
-            }, 500);
             res.redirect('/panel');
         }
     );
@@ -1455,7 +1432,7 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
         const userMessage = req.body.message || '';
 
         // Podstawowa instrukcja dla modelu
-        let instruction = "Odpowiadaj zawsze w języku polskim, bez względu na język zapytania.";
+        let instruction = "Odpowiadaj zawsze w języku polskim, bez względu na język zapytania. Twoje odpowiedzi powinny być pomocne, dokładne i przyjazne oraz dopracowane i zrozumiale.";
 
         const fullMessage = instruction + " " + userMessage;
 
@@ -1577,65 +1554,5 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
         });
     }
 });
-
-// Funkcja do wykonywania komend git
-function executeGitCommands() {
-    console.log('Wykryto zmianę w folderze pliki - wykonuję komendy git...');
-
-    // Wykonaj komendy git jedna po drugiej
-    exec('git add *', { cwd: __dirname }, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Błąd podczas wykonywania git add: ${error.message}`);
-            return;
-        }
-
-        console.log('git add * - wykonano pomyślnie');
-
-        // Po pomyślnym wykonaniu git add, wykonaj git commit
-        exec('git commit -m "automat"', { cwd: __dirname }, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Błąd podczas wykonywania git commit: ${error.message}`);
-                return;
-            }
-
-            console.log('git commit -m "automat" - wykonano pomyślnie');
-
-            // Po pomyślnym wykonaniu git commit, wykonaj git push
-            exec('git push origin main', { cwd: __dirname }, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Błąd podczas wykonywania git push: ${error.message}`);
-                    return;
-                }
-
-                console.log('git push origin main - wykonano pomyślnie');
-                console.log('Wszystkie komendy git zostały wykonane pomyślnie!');
-            });
-        });
-    });
-}
-
-// Monitorowanie zmian w folderze pliki
-const plikiDir = path.join(__dirname, 'pliki');
-if (!fs.existsSync(plikiDir)) {
-    fs.mkdirSync(plikiDir);
-}
-
-// Zmienna do śledzenia ostatniej zmiany, aby uniknąć wielokrotnego wykonania komend dla tej samej zmiany
-let debounceTimer = null;
-
-// Monitoruj zmiany w folderze pliki
-fs.watch(plikiDir, { persistent: true }, (eventType, filename) => {
-    if (filename) {
-        console.log(`Wykryto zmianę w pliku: ${filename}`);
-
-        // Użyj debounce, aby uniknąć wielokrotnego wykonania komend dla wielu zmian w krótkim czasie
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            executeGitCommands();
-        }, 2000); // Poczekaj 2 sekundy po ostatniej zmianie
-    }
-});
-
-console.log(`Monitorowanie zmian w folderze pliki zostało uruchomione.`);
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
