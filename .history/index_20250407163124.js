@@ -1515,7 +1515,7 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
 
         // Format code blocks properly
         // Replace markdown code blocks with styled HTML code containers
-        aiReply = aiReply.replace(/\`\`\`(.*)\n([\s\S]*?)\`\`\`/g, function (match, language, code) {
+        aiReply = aiReply.replace(/\`\`\`(.*)\n([\s\S]*?)\`\`\`/g, function(match, language, code) {
             // Escape HTML in the code content
             const escapedCode = code
                 .replace(/</g, '&lt;')
