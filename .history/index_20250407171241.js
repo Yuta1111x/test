@@ -15,73 +15,36 @@ const GIT_TOKEN = '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'; // Zastąp tym wł
 function initGitConfig() {
     console.log('Inicjalizacja konfiguracji git...');
 
-    // Sprawdź, czy katalog jest repozytorium git
-    exec('git status', { cwd: __dirname }, (error, stdout, stderr) => {
+    // Ustawienie nazwy użytkownika git
+    exec('git config --global user.name "Yuta1111x"', { cwd: __dirname }, (error, stdout, stderr) => {
         if (error) {
-            console.log('Katalog nie jest repozytorium git. Inicjalizuję nowe repozytorium...');
-
-            // Inicjalizuj nowe repozytorium git
-            exec('git init', { cwd: __dirname }, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Błąd podczas inicjalizacji repozytorium git: ${error.message}`);
-                    return;
-                }
-                console.log('Repozytorium git zostało zainicjalizowane pomyślnie.');
-                configureGit();
-            });
-        } else {
-            console.log('Katalog jest już repozytorium git.');
-            configureGit();
+            console.error(`Błąd podczas ustawiania nazwy użytkownika git: ${error.message}`);
+            return;
         }
-    });
+        console.log('Nazwa użytkownika git została ustawiona pomyślnie.');
 
-    function configureGit() {
-        // Ustawienie nazwy użytkownika git
-        exec('git config --global user.name "Yuta1111x"', { cwd: __dirname }, (error, stdout, stderr) => {
+        // Ustawienie adresu email git
+        exec('git config --global user.email "yoyuta1111x@gmail.com"', { cwd: __dirname }, (error, stdout, stderr) => {
             if (error) {
-                console.error(`Błąd podczas ustawiania nazwy użytkownika git: ${error.message}`);
+                console.error(`Błąd podczas ustawiania adresu email git: ${error.message}`);
                 return;
             }
-            console.log('Nazwa użytkownika git została ustawiona pomyślnie.');
+            console.log('Adres email git został ustawiony pomyślnie.');
 
-            // Ustawienie adresu email git
-            exec('git config --global user.email "yoyuta1111x@gmail.com"', { cwd: __dirname }, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Błąd podczas ustawiania adresu email git: ${error.message}`);
-                    return;
-                }
-                console.log('Adres email git został ustawiony pomyślnie.');
-
-                // Sprawdź, czy remote origin istnieje
-                exec('git remote -v', { cwd: __dirname }, (error, stdout, stderr) => {
-                    // Ustaw prawidłowy URL repozytorium
-                    const repoUrl = GIT_TOKEN && GIT_TOKEN !== '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'
-                        ? `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/test.git`
-                        : 'https://github.com/Yuta1111x/test.git';
-
-                    if (!error && stdout.includes('origin')) {
-                        // Jeśli origin istnieje, zaktualizuj URL
-                        exec(`git remote set-url origin ${repoUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
-                            if (error) {
-                                console.error(`Błąd podczas aktualizacji URL remote: ${error.message}`);
-                                return;
-                            }
-                            console.log('URL repozytorium git został zaktualizowany pomyślnie.');
-                        });
-                    } else {
-                        // Jeśli origin nie istnieje, dodaj je
-                        exec(`git remote add origin ${repoUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
-                            if (error) {
-                                console.error(`Błąd podczas dodawania remote: ${error.message}`);
-                                return;
-                            }
-                            console.log('Remote origin zostało dodane pomyślnie.');
-                        });
+            // Jeśli token jest dostępny, skonfiguruj go do używania z git
+            if (GIT_TOKEN && GIT_TOKEN !== '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') {
+                // Konfiguracja tokena dla GitHub
+                const remoteUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/repo.git`;
+                exec(`git remote set-url origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
+                    if (error) {
+                        console.error(`Błąd podczas konfiguracji tokena git: ${error.message}`);
+                        return;
                     }
+                    console.log('Token git został skonfigurowany pomyślnie.');
                 });
-            });
+            }
         });
-    }
+    });
 }
 
 // Wywołaj inicjalizację konfiguracji git na starcie
@@ -1671,74 +1634,30 @@ function executeGitCommands() {
         // Po pomyślnym wykonaniu git add, wykonaj git commit
         exec('git commit -m "automat"', { cwd: __dirname }, (error, stdout, stderr) => {
             if (error) {
-                // Jeśli błąd commita, może to być "nothing to commit" lub inny błąd
-                if (stderr && stderr.includes('nothing to commit')) {
-                    console.log('Brak zmian do zacommitowania.');
-                    return;
-                }
                 console.error(`Błąd podczas wykonywania git commit: ${error.message}`);
                 return;
             }
 
             console.log('git commit -m "automat" - wykonano pomyślnie');
 
-            // Sprawdź, czy to pierwszy commit (czy istnieje branch main)
-            exec('git branch', { cwd: __dirname }, (error, stdout, stderr) => {
-                // Ustaw odpowiednią komendę push w zależności od tego, czy branch main istnieje
-                let pushCommand = '';
-                const repoUrl = GIT_TOKEN && GIT_TOKEN !== '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'
-                    ? `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/test.git`
-                    : 'origin';
+            // Po pomyślnym wykonaniu git commit, wykonaj git push
+            // Jeśli token jest dostępny, użyj go do push
+            let pushCommand = 'git push origin main';
 
-                if (!error && stdout.includes('main')) {
-                    // Jeśli branch main istnieje, użyj standardowej komendy push
-                    pushCommand = GIT_TOKEN && GIT_TOKEN !== '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'
-                        ? `git push ${repoUrl} main`
-                        : 'git push origin main';
-                } else {
-                    // Jeśli to pierwszy commit, użyj -u aby ustawić upstream
-                    const currentBranch = 'master'; // Domyślna nazwa brancha w starszych wersjach git
-                    pushCommand = GIT_TOKEN && GIT_TOKEN !== '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'
-                        ? `git push -u ${repoUrl} ${currentBranch}`
-                        : `git push -u origin ${currentBranch}`;
+            // Jeśli token jest dostępny i nie jest domyślną wartością, użyj go bezpośrednio w komendzie push
+            if (GIT_TOKEN && GIT_TOKEN !== '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') {
+                const repoUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/repo.git`;
+                pushCommand = `git push ${repoUrl} main`;
+            }
+
+            exec(pushCommand, { cwd: __dirname }, (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Błąd podczas wykonywania git push: ${error.message}`);
+                    return;
                 }
 
-                console.log(`Wykonuję: ${pushCommand.replace(GIT_TOKEN, '***')}`);
-
-                exec(pushCommand, { cwd: __dirname }, (error, stdout, stderr) => {
-                    if (error) {
-                        console.error(`Błąd podczas wykonywania git push: ${error.message}`);
-
-                        // Jeśli błąd push, spróbuj najpierw pobrać zmiany
-                        if (stderr && (stderr.includes('rejected') || stderr.includes('failed to push'))) {
-                            console.log('Próbuję najpierw pobrać zmiany z repozytorium...');
-
-                            exec('git pull --rebase origin main', { cwd: __dirname }, (pullError, pullStdout, pullStderr) => {
-                                if (pullError) {
-                                    console.error(`Błąd podczas wykonywania git pull: ${pullError.message}`);
-                                    return;
-                                }
-
-                                console.log('git pull - wykonano pomyślnie, próbuję ponownie push...');
-
-                                // Spróbuj ponownie push po pull
-                                exec(pushCommand, { cwd: __dirname }, (pushError, pushStdout, pushStderr) => {
-                                    if (pushError) {
-                                        console.error(`Błąd podczas ponownego wykonywania git push: ${pushError.message}`);
-                                        return;
-                                    }
-
-                                    console.log('git push - wykonano pomyślnie po pull');
-                                    console.log('Wszystkie komendy git zostały wykonane pomyślnie!');
-                                });
-                            });
-                        }
-                        return;
-                    }
-
-                    console.log('git push - wykonano pomyślnie');
-                    console.log('Wszystkie komendy git zostały wykonane pomyślnie!');
-                });
+                console.log('git push - wykonano pomyślnie');
+                console.log('Wszystkie komendy git zostały wykonane pomyślnie!');
             });
         });
     });
