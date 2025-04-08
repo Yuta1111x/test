@@ -15,71 +15,54 @@ const GIT_TOKEN = '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'; // Zastąp tym wł
 function initGitConfig() {
     console.log('Inicjalizacja konfiguracji git...');
 
-    // Sprawdź, czy katalog jest repozytorium git
-    exec('git status', { cwd: __dirname }, (error, stdout, stderr) => {
+    // Ustawienie nazwy użytkownika git
+    exec('git config --global user.name "Yuta1111x"', { cwd: __dirname }, (error, stdout, stderr) => {
         if (error) {
-            console.log('Katalog nie jest repozytorium git. Inicjalizuję nowe repozytorium...');
-
-            // Inicjalizuj nowe repozytorium git
-            exec('git init', { cwd: __dirname }, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Błąd podczas inicjalizacji repozytorium git: ${error.message}`);
-                    return;
-                }
-                console.log('Repozytorium git zostało zainicjalizowane pomyślnie.');
-                configureGit();
-            });
-        } else {
-            console.log('Katalog jest już repozytorium git.');
-            configureGit();
+            console.error(`Błąd podczas ustawiania nazwy użytkownika git: ${error.message}`);
+            return;
         }
-    });
+        console.log('Nazwa użytkownika git została ustawiona pomyślnie.');
 
-    function configureGit() {
-        // Ustawienie nazwy użytkownika git
-        exec('git config --global user.name "Yuta1111x"', { cwd: __dirname }, (error, stdout, stderr) => {
+        // Ustawienie adresu email git
+        exec('git config --global user.email "yoyuta1111x@gmail.com"', { cwd: __dirname }, (error, stdout, stderr) => {
             if (error) {
-                console.error(`Błąd podczas ustawiania nazwy użytkownika git: ${error.message}`);
+                console.error(`Błąd podczas ustawiania adresu email git: ${error.message}`);
                 return;
             }
-            console.log('Nazwa użytkownika git została ustawiona pomyślnie.');
-
-            // Ustawienie adresu email git
-            exec('git config --global user.email "yoyuta1111x@gmail.com"', { cwd: __dirname }, (error, stdout, stderr) => {
+            console.log('Adres email git został ustawiony pomyślnie.');
+            
+            // Sprawdzenie czy remote origin istnieje
+            exec('git remote -v', { cwd: __dirname }, (error, stdout, stderr) => {
                 if (error) {
-                    console.error(`Błąd podczas ustawiania adresu email git: ${error.message}`);
+                    console.error(`Błąd podczas sprawdzania remote: ${error.message}`);
                     return;
                 }
-                console.log('Adres email git został ustawiony pomyślnie.');
                 
-                // Sprawdzenie czy remote origin istnieje
-                exec('git remote -v', { cwd: __dirname }, (error, stdout, stderr) => {
-                    // Ustaw prawidłowy URL repozytorium
-                    const remoteUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/test.git`;
-
-                    if (!error && stdout.includes('origin')) {
-                        // Jeśli origin istnieje, zaktualizuj URL
-                        exec(`git remote set-url origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
-                            if (error) {
-                                console.error(`Błąd podczas aktualizacji URL remote: ${error.message}`);
-                                return;
-                            }
-                            console.log('URL repozytorium git został zaktualizowany pomyślnie.');
-                        });
-                    } else {
-                        // Jeśli origin nie istnieje, dodaj je
-                        exec(`git remote add origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
-                            if (error) {
-                                console.error(`Błąd podczas dodawania remote: ${error.message}`);
-                                return;
-                            }
-                            console.log('Remote origin zostało dodane pomyślnie.');
-                        });
-                    }
-                });
+                // Dodanie lub aktualizacja remote origin z tokenem
+                const remoteUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/test.git`;
+                
+                if (stdout.includes('origin')) {
+                    // Jeśli origin już istnieje, zaktualizuj URL
+                    exec(`git remote set-url origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
+                        if (error) {
+                            console.error(`Błąd podczas aktualizacji remote origin: ${error.message}`);
+                            return;
+                        }
+                        console.log('Remote origin zostało zaktualizowane pomyślnie.');
+                    });
+                } else {
+                    // Jeśli origin nie istnieje, dodaj je
+                    exec(`git remote add origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
+                        if (error) {
+                            console.error(`Błąd podczas dodawania remote origin: ${error.message}`);
+                            return;
+                        }
+                        console.log('Remote origin zostało dodane pomyślnie.');
+                    });
+                }
             });
         });
-    }
+    });
 }
 
 // Wywołaj inicjalizację konfiguracji git na starcie
