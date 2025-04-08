@@ -10,6 +10,42 @@ const marked = require('marked'); // Biblioteka do formatowania markdown
 const app = express();
 const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = 'AIzaSyAP1EOpnlAhNRh9MI41v8EHtyRGylNR_bA';
+const GIT_TOKEN = process.env.GIT_TOKEN;
+const GIT_USER = process.env.GIT_USER || 'Yuta1111x';
+const REMOTE_URL = `https://${GIT_USER}:${GIT_TOKEN}@github.com/${GIT_USER}/test.git`;
+let isPushing = false; // Flaga do śledzenia, czy aktualnie trwa push
+
+// Inicjalizacja konfiguracji git
+function setupGit() {
+  try {
+    // Sprawdź, czy katalog jest repozytorium git
+    try {
+      execSync('git status', { cwd: __dirname });
+      console.log('Katalog jest już repozytorium git.');
+    } catch (error) {
+      console.log('Katalog nie jest repozytorium git. Inicjalizuję nowe repozytorium...');
+      execSync('git init', { cwd: __dirname });
+      console.log('Repozytorium git zostało zainicjalizowane pomyślnie.');
+    }
+    
+    // Konfiguracja git
+    execSync(`git config user.name "${GIT_USER}"`);
+    execSync(`git config user.email "${GIT_USER}@users.noreply.github.com"`);
+    const remotes = execSync('git remote').toString();
+    if (!remotes.includes('origin')) {
+      execSync(`git remote add origin ${REMOTE_URL}`);
+      console.log('✅ Remote origin dodany.');
+    } else {
+      execSync(`git remote set-url origin ${REMOTE_URL}`);
+      console.log('✅ Remote origin zaktualizowany.');
+    }
+  } catch (err) {
+    console.error('❌ Błąd przy konfiguracji GIT:', err.message);
+  }
+}
+
+// Wywołaj inicjalizację konfiguracji git na starcie
+setupGit();
 
 // Upewnij się, że istnieje folder temp
 const tempDir = path.join(__dirname, 'temp');
@@ -1579,12 +1615,64 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
     }
 });
 
+// Funkcja do wykonywania komend git
+function executeGitCommands() {
+    console.log('Wykryto zmianę w folderze pliki - wykonuję komendy git...');
 
+    // Wykonaj komendy git jedna po drugiej
+    exec('git add *', { cwd: __dirname }, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Błąd podczas wykonywania git add: ${error.message}`);
+            return;
+        }
 
-// Upewnij się, że folder pliki istnieje
+        console.log('git add * - wykonano pomyślnie');
+
+        // Po pomyślnym wykonaniu git add, wykonaj git commit
+        exec('git commit -m "automat"', { cwd: __dirname }, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Błąd podczas wykonywania git commit: ${error.message}`);
+                return;
+            }
+
+            console.log('git commit -m "automat" - wykonano pomyślnie');
+
+            // Po pomyślnym wykonaniu git commit, wykonaj git push
+            exec('git push origin main', { cwd: __dirname }, (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Błąd podczas wykonywania git push: ${error.message}`);
+                    return;
+                }
+
+                console.log('git push - wykonano pomyślnie');
+                console.log('Wszystkie komendy git zostały wykonane pomyślnie!');
+            });
+        });
+    });
+}
+
+// Monitorowanie zmian w folderze pliki
 const plikiDir = path.join(__dirname, 'pliki');
 if (!fs.existsSync(plikiDir)) {
     fs.mkdirSync(plikiDir);
 }
+
+// Zmienna do śledzenia ostatniej zmiany, aby uniknąć wielokrotnego wykonania komend dla tej samej zmiany
+let debounceTimer = null;
+
+// Monitoruj zmiany w folderze pliki
+fs.watch(plikiDir, { persistent: true }, (eventType, filename) => {
+    if (filename) {
+        console.log(`Wykryto zmianę w pliku: ${filename}`);
+
+        // Użyj debounce, aby uniknąć wielokrotnego wykonania komend dla wielu zmian w krótkim czasie
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            executeGitCommands();
+        }, 2000); // Poczekaj 2 sekundy po ostatniej zmianie
+    }
+});
+
+console.log(`Monitorowanie zmian w folderze pliki zostało uruchomione.`);
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
