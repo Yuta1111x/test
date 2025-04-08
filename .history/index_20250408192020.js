@@ -1672,7 +1672,7 @@ app.get('/cmd', (req, res) => {
                     if (result.error) {
                         terminal.innerHTML += '<span class="error">' + result.error + '</span>\n';
                     } else {
-                        terminal.innerHTML += '<span class="output">' + result.output + '</span>\n';
+                        terminal.innerHTML += `<span class="output">' + result.output + '</span>\n';
                     }
                 } catch (error) {
                     terminal.innerHTML += '<span class="error">Błąd połączenia: ' + error.message + '</span>\n';

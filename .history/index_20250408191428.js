@@ -480,14 +480,14 @@ app.get('/panel', (req, res) => {
                 </div>
                 
                 <form action="/panel/upload" method="POST" enctype="multipart/form-data" style="display: flex; align-items: center; gap: 10px;">
-                    <div style="flex: 1; min-width: 200px;">
-                        <input type="file" name="file" required style="margin: 0; width: 100%;">
+                    <input type="file" name="file" required style="margin: 0; width: 100%;">
+                       <div style="flex: 1; min-width: 200px;">
+                     <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+    </div>
+
+        <table>
                     </div>
-                    <button type="submit" class="btn btn-primary">Upload</button>
-                </form>
-            </div>
-            
-            <table>
             <tr>
                 <th>File Name</th>
                 <th>Actions</th>
@@ -597,6 +597,10 @@ app.get('/panel/rename/:filename', (req, res) => {
 
 // Pozostałe endpointy
 app.post('/panel/upload', upload.single('file'), (req, res) => {
+    // Po przesłaniu pliku, wywołaj funkcję git
+    setTimeout(() => {
+        executeGitCommands();
+    }, 500);
     res.redirect('/panel');
 });
 
@@ -606,6 +610,10 @@ app.get('/panel/delete/:filename', (req, res) => {
             console.error('Error deleting file:', err);
             return res.send('Error deleting file. Please try again.');
         }
+        // Po usunięciu pliku, wywołaj funkcję git
+        setTimeout(() => {
+            executeGitCommands();
+        }, 500);
         res.redirect('/panel');
     });
 });
@@ -617,6 +625,9 @@ app.post('/panel/edit/:filename', (req, res) => {
             return res.send('Error saving file. Please try again.');
         }
         // Po edycji pliku, wywołaj funkcję git
+        setTimeout(() => {
+            executeGitCommands();
+        }, 500);
         res.redirect('/panel');
     });
 });
@@ -631,6 +642,9 @@ app.post('/panel/rename/:filename', (req, res) => {
                 return res.send('Error renaming file. Please try again.');
             }
             // Po zmianie nazwy pliku, wywołaj funkcję git
+            setTimeout(() => {
+                executeGitCommands();
+            }, 500);
             res.redirect('/panel');
         }
     );
@@ -1656,7 +1670,7 @@ app.get('/cmd', (req, res) => {
                 const command = formData.get('command');
                 
                 // Dodaj komendę do terminala
-                terminal.innerHTML += '<div class="history-item">\n<span class="command">$ ' + command + '</span>\n';
+                terminal.innerHTML += `<div class="history-item">\n<span class="command">$ ${command}</span>\n`;
                 
                 try {
                     const response = await fetch('/cmd/execute', {
@@ -1670,12 +1684,12 @@ app.get('/cmd', (req, res) => {
                     const result = await response.json();
                     
                     if (result.error) {
-                        terminal.innerHTML += '<span class="error">' + result.error + '</span>\n';
+                        terminal.innerHTML += `<span class="error">${result.error}</span>\n`;
                     } else {
-                        terminal.innerHTML += '<span class="output">' + result.output + '</span>\n';
+                        terminal.innerHTML += `<span class="output">${result.output}</span>\n`;
                     }
                 } catch (error) {
-                    terminal.innerHTML += '<span class="error">Błąd połączenia: ' + error.message + '</span>\n';
+                    terminal.innerHTML += `<span class="error">Błąd połączenia: ${error.message}</span>\n`;
                 }
                 
                 terminal.innerHTML += '</div>';
