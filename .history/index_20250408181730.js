@@ -30,37 +30,19 @@ function initGitConfig() {
                 return;
             }
             console.log('Adres email git został ustawiony pomyślnie.');
-            
-            // Sprawdzenie czy remote origin istnieje
-            exec('git remote -v', { cwd: __dirname }, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Błąd podczas sprawdzania remote: ${error.message}`);
-                    return;
-                }
-                
-                // Dodanie lub aktualizacja remote origin z tokenem
+
+            // Jeśli token jest dostępny, skonfiguruj go do używania z git
+            if (GIT_TOKEN) {
+                // Konfiguracja tokena dla GitHub
                 const remoteUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/test.git`;
-                
-                if (stdout.includes('origin')) {
-                    // Jeśli origin już istnieje, zaktualizuj URL
-                    exec(`git remote set-url origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
-                        if (error) {
-                            console.error(`Błąd podczas aktualizacji remote origin: ${error.message}`);
-                            return;
-                        }
-                        console.log('Remote origin zostało zaktualizowane pomyślnie.');
-                    });
-                } else {
-                    // Jeśli origin nie istnieje, dodaj je
-                    exec(`git remote add origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
-                        if (error) {
-                            console.error(`Błąd podczas dodawania remote origin: ${error.message}`);
-                            return;
-                        }
-                        console.log('Remote origin zostało dodane pomyślnie.');
-                    });
-                }
-            });
+                exec(`git remote set-url origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
+                    if (error) {
+                        console.error(`Błąd podczas konfiguracji tokena git: ${error.message}`);
+                        return;
+                    }
+                    console.log('Token git został skonfigurowany pomyślnie.');
+                });
+            }
         });
     });
 }
@@ -1659,7 +1641,16 @@ function executeGitCommands() {
             console.log('git commit -m "automat" - wykonano pomyślnie');
 
             // Po pomyślnym wykonaniu git commit, wykonaj git push
-            exec('git push origin main', { cwd: __dirname }, (error, stdout, stderr) => {
+            // Jeśli token jest dostępny, użyj go do push
+            let pushCommand = 'git push origin main';
+
+            // Jeśli token jest dostępny, użyj go bezpośrednio w komendzie push
+            if (GIT_TOKEN) {
+                const repoUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/test.git`;
+                pushCommand = `git push ${repoUrl} main`;
+            }
+
+            exec(pushCommand, { cwd: __dirname }, (error, stdout, stderr) => {
                 if (error) {
                     console.error(`Błąd podczas wykonywania git push: ${error.message}`);
                     return;

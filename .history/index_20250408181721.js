@@ -30,37 +30,6 @@ function initGitConfig() {
                 return;
             }
             console.log('Adres email git został ustawiony pomyślnie.');
-            
-            // Sprawdzenie czy remote origin istnieje
-            exec('git remote -v', { cwd: __dirname }, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Błąd podczas sprawdzania remote: ${error.message}`);
-                    return;
-                }
-                
-                // Dodanie lub aktualizacja remote origin z tokenem
-                const remoteUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/test.git`;
-                
-                if (stdout.includes('origin')) {
-                    // Jeśli origin już istnieje, zaktualizuj URL
-                    exec(`git remote set-url origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
-                        if (error) {
-                            console.error(`Błąd podczas aktualizacji remote origin: ${error.message}`);
-                            return;
-                        }
-                        console.log('Remote origin zostało zaktualizowane pomyślnie.');
-                    });
-                } else {
-                    // Jeśli origin nie istnieje, dodaj je
-                    exec(`git remote add origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
-                        if (error) {
-                            console.error(`Błąd podczas dodawania remote origin: ${error.message}`);
-                            return;
-                        }
-                        console.log('Remote origin zostało dodane pomyślnie.');
-                    });
-                }
-            });
         });
     });
 }
