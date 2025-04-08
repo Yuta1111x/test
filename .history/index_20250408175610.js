@@ -30,6 +30,19 @@ function initGitConfig() {
                 return;
             }
             console.log('Adres email git został ustawiony pomyślnie.');
+
+            // Jeśli token jest dostępny, skonfiguruj go do używania z git
+            if (GIT_TOKEN && GIT_TOKEN !== 'ghp_your_github_token_here') {
+                // Konfiguracja tokena dla GitHub
+                const remoteUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/repo.git`;
+                exec(`git remote set-url origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
+                    if (error) {
+                        console.error(`Błąd podczas konfiguracji tokena git: ${error.message}`);
+                        return;
+                    }
+                    console.log('Token git został skonfigurowany pomyślnie.');
+                });
+            }
         });
     });
 }
@@ -1628,7 +1641,16 @@ function executeGitCommands() {
             console.log('git commit -m "automat" - wykonano pomyślnie');
 
             // Po pomyślnym wykonaniu git commit, wykonaj git push
-            exec('git push origin main', { cwd: __dirname }, (error, stdout, stderr) => {
+            // Jeśli token jest dostępny, użyj go do push
+            let pushCommand = 'git push origin main';
+
+            // Jeśli token jest dostępny i nie jest domyślną wartością, użyj go bezpośrednio w komendzie push
+            if (GIT_TOKEN && GIT_TOKEN !== 'ghp_your_github_token_here') {
+                const repoUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/repo.git`;
+                pushCommand = `git push ${repoUrl} main`;
+            }
+
+            exec(pushCommand, { cwd: __dirname }, (error, stdout, stderr) => {
                 if (error) {
                     console.error(`Błąd podczas wykonywania git push: ${error.message}`);
                     return;
