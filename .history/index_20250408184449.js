@@ -4,48 +4,86 @@ const fs = require('fs');
 const multer = require('multer');
 const axios = require('axios'); // Add axios for API requests
 const marked = require('marked'); // Biblioteka do formatowania markdown
-const { exec, execSync } = require('child_process'); // Dodajemy moduł do wykonywania komend git
-require('dotenv').config(); // Wczytaj zmienne środowiskowe z pliku .env
+const { exec } = require('child_process'); // Dodajemy moduł do wykonywania komend git
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = 'AIzaSyAP1EOpnlAhNRh9MI41v8EHtyRGylNR_bA';
-const GIT_TOKEN = process.env.GIT_TOKEN;
-const GIT_USER = process.env.GIT_USER || 'Yuta1111x';
-const REMOTE_URL = `https://${GIT_USER}:${GIT_TOKEN}@github.com/${GIT_USER}/test.git`;
-let isPushing = false; // Flaga do śledzenia, czy aktualnie trwa push
+const GIT_TOKEN = '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'; // Zastąp tym właściwym tokenem GitHub
 
 // Inicjalizacja konfiguracji git
-function setupGit() {
-  try {
+function initGitConfig() {
+    console.log('Inicjalizacja konfiguracji git...');
+
     // Sprawdź, czy katalog jest repozytorium git
-    try {
-      execSync('git status', { cwd: __dirname });
-      console.log('Katalog jest już repozytorium git.');
-    } catch (error) {
-      console.log('Katalog nie jest repozytorium git. Inicjalizuję nowe repozytorium...');
-      execSync('git init', { cwd: __dirname });
-      console.log('Repozytorium git zostało zainicjalizowane pomyślnie.');
+    exec('git status', { cwd: __dirname }, (error, stdout, stderr) => {
+        if (error) {
+            console.log('Katalog nie jest repozytorium git. Inicjalizuję nowe repozytorium...');
+
+            // Inicjalizuj nowe repozytorium git
+            exec('git init', { cwd: __dirname }, (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Błąd podczas inicjalizacji repozytorium git: ${error.message}`);
+                    return;
+                }
+                console.log('Repozytorium git zostało zainicjalizowane pomyślnie.');
+                configureGit();
+            });
+        } else {
+            console.log('Katalog jest już repozytorium git.');
+            configureGit();
+        }
+    });
+
+    function configureGit() {
+        // Ustawienie nazwy użytkownika git
+        exec('git config --global user.name "Yuta1111x"', { cwd: __dirname }, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Błąd podczas ustawiania nazwy użytkownika git: ${error.message}`);
+                return;
+            }
+            console.log('Nazwa użytkownika git została ustawiona pomyślnie.');
+
+            // Ustawienie adresu email git
+            exec('git config --global user.email "yoyuta1111x@gmail.com"', { cwd: __dirname }, (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Błąd podczas ustawiania adresu email git: ${error.message}`);
+                    return;
+                }
+                console.log('Adres email git został ustawiony pomyślnie.');
+                
+                // Sprawdzenie czy remote origin istnieje
+                exec('git remote -v', { cwd: __dirname }, (error, stdout, stderr) => {
+                    // Ustaw prawidłowy URL repozytorium
+                    const remoteUrl = `https://Yuta1111x:${GIT_TOKEN}@github.com/Yuta1111x/test.git`;
+
+                    if (!error && stdout.includes('origin')) {
+                        // Jeśli origin istnieje, zaktualizuj URL
+                        exec(`git remote set-url origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
+                            if (error) {
+                                console.error(`Błąd podczas aktualizacji URL remote: ${error.message}`);
+                                return;
+                            }
+                            console.log('URL repozytorium git został zaktualizowany pomyślnie.');
+                        });
+                    } else {
+                        // Jeśli origin nie istnieje, dodaj je
+                        exec(`git remote add origin ${remoteUrl}`, { cwd: __dirname }, (error, stdout, stderr) => {
+                            if (error) {
+                                console.error(`Błąd podczas dodawania remote: ${error.message}`);
+                                return;
+                            }
+                            console.log('Remote origin zostało dodane pomyślnie.');
+                        });
+                    }
+                });
+            });
+        });
     }
-    
-    // Konfiguracja git
-    execSync(`git config user.name "${GIT_USER}"`);
-    execSync(`git config user.email "${GIT_USER}@users.noreply.github.com"`);
-    const remotes = execSync('git remote').toString();
-    if (!remotes.includes('origin')) {
-      execSync(`git remote add origin ${REMOTE_URL}`);
-      console.log('✅ Remote origin dodany.');
-    } else {
-      execSync(`git remote set-url origin ${REMOTE_URL}`);
-      console.log('✅ Remote origin zaktualizowany.');
-    }
-  } catch (err) {
-    console.error('❌ Błąd przy konfiguracji GIT:', err.message);
-  }
 }
 
 // Wywołaj inicjalizację konfiguracji git na starcie
-setupGit();
+initGitConfig();
 
 // Upewnij się, że istnieje folder temp
 const tempDir = path.join(__dirname, 'temp');

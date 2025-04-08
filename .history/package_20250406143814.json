@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.8.4",
-    "dotenv": "^16.4.5",
     "express": "^4.21.2",
     "fs": "^0.0.1-security",
     "marked": "^15.0.7",
