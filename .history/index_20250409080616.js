@@ -704,15 +704,6 @@ app.get('/terminal', (req, res) => {
 
 // Add API endpoint for Gemini with image support
 app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
-    // Check if chat is enabled
-    if (!chatEnabled) {
-        // If chat is disabled, return an error message
-        return res.status(503).json({
-            error: 'Chat service unavailable',
-            reply: 'The chat service is currently disabled. Please try again later.'
-        });
-    }
-    
     try {
         const userMessage = req.body.message || '';
 

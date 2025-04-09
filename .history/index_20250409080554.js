@@ -425,6 +425,14 @@ app.get('/', (req, res) => {
         <h1>Welcome to Files Portal</h1>
         <div style="text-align: center; margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; align-items: center;">
             <a href="/panel" class="btn btn-primary">Go to File Management</a>
+            <a href="/chat" class="btn btn-primary" style="background: linear-gradient(to right, #9333ea, #3b82f6);">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 1a5 5 0 0 0-5 5v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a6 6 0 1 1 12 0v6a2.5 2.5 0 0 1-2.5 2.5H9.366a1 1 0 0 1-.866.5h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 .866.5H11.5A1.5 1.5 0 0 0 13 12h-1a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1V6a5 5 0 0 0-5-5z"/>
+                    </svg>
+                    Chat with YutAi
+                </span>
+            </a>
         </div>
     </div>
 </body>
@@ -640,56 +648,7 @@ app.use('/files', express.static(path.join(__dirname, 'pliki')));
 
 // Add Gemini chat page
 app.get('/chat', (req, res) => {
-    if (!chatEnabled) {
-        // If chat is disabled, show the "Coming Soon" page
-        res.send(`
-<html>
-<head>
-    <title>Chat - Coming Soon</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    ${modernStyles}
-    <style>
-        .coming-soon {
-            text-align: center;
-            margin-top: 4rem;
-        }
-        
-        .coming-soon h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .coming-soon p {
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            font-size: 1.2rem;
-        }
-        
-        .coming-soon .icon {
-            font-size: 5rem;
-            margin-bottom: 2rem;
-            background: linear-gradient(to right, #6366f1, #8b5cf6, #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-    </style>
-</head>
-<body>
-    <div class="container fade-in">
-        <div class="coming-soon">
-            <div class="icon">🤖</div>
-            <h1>Chat Feature Coming Soon</h1>
-            <p>We're working hard to bring you an amazing AI chat experience.</p>
-            <a href="/" class="btn btn-primary">Back to Home</a>
-        </div>
-    </div>
-</body>
-</html>
-        `);
-    } else {
-        // If chat is enabled, show the normal chat page
-        res.sendFile(path.join(__dirname, 'public', 'chat.html'));
-    }
+    res.sendFile(path.join(__dirname, 'public', 'chat.html'));
 });
 
 // Add terminal page
@@ -704,15 +663,6 @@ app.get('/terminal', (req, res) => {
 
 // Add API endpoint for Gemini with image support
 app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
-    // Check if chat is enabled
-    if (!chatEnabled) {
-        // If chat is disabled, return an error message
-        return res.status(503).json({
-            error: 'Chat service unavailable',
-            reply: 'The chat service is currently disabled. Please try again later.'
-        });
-    }
-    
     try {
         const userMessage = req.body.message || '';
 

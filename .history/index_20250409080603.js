@@ -640,56 +640,7 @@ app.use('/files', express.static(path.join(__dirname, 'pliki')));
 
 // Add Gemini chat page
 app.get('/chat', (req, res) => {
-    if (!chatEnabled) {
-        // If chat is disabled, show the "Coming Soon" page
-        res.send(`
-<html>
-<head>
-    <title>Chat - Coming Soon</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    ${modernStyles}
-    <style>
-        .coming-soon {
-            text-align: center;
-            margin-top: 4rem;
-        }
-        
-        .coming-soon h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .coming-soon p {
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            font-size: 1.2rem;
-        }
-        
-        .coming-soon .icon {
-            font-size: 5rem;
-            margin-bottom: 2rem;
-            background: linear-gradient(to right, #6366f1, #8b5cf6, #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-    </style>
-</head>
-<body>
-    <div class="container fade-in">
-        <div class="coming-soon">
-            <div class="icon">🤖</div>
-            <h1>Chat Feature Coming Soon</h1>
-            <p>We're working hard to bring you an amazing AI chat experience.</p>
-            <a href="/" class="btn btn-primary">Back to Home</a>
-        </div>
-    </div>
-</body>
-</html>
-        `);
-    } else {
-        // If chat is enabled, show the normal chat page
-        res.sendFile(path.join(__dirname, 'public', 'chat.html'));
-    }
+    res.sendFile(path.join(__dirname, 'public', 'chat.html'));
 });
 
 // Add terminal page
@@ -704,15 +655,6 @@ app.get('/terminal', (req, res) => {
 
 // Add API endpoint for Gemini with image support
 app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
-    // Check if chat is enabled
-    if (!chatEnabled) {
-        // If chat is disabled, return an error message
-        return res.status(503).json({
-            error: 'Chat service unavailable',
-            reply: 'The chat service is currently disabled. Please try again later.'
-        });
-    }
-    
     try {
         const userMessage = req.body.message || '';
 

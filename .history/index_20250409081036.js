@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = 'AIzaSyAP1EOpnlAhNRh9MI41v8EHtyRGylNR_bA';
 
 // Flag to control chat functionality
-const chatEnabled = false; // Set to true to enable chat, false to show "Coming Soon"
+const chatEnabled true; // Set to true to enable chat, false to show "Coming Soon"
 
 // Upewnij się, że istnieje folder temp
 const tempDir = path.join(__dirname, 'temp');
