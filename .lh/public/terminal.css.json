@@ -1,0 +1,18 @@
+{
+    "sourceFile": "public/terminal.css",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1744134588601,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1744134588601,
+            "name": "Commit-0",
+            "content": "/* Terminal Styles */\r\n.terminal {\r\n    background-color: #000;\r\n    color: #0f0;\r\n    font-family: 'Courier New', monospace;\r\n    padding: 1rem;\r\n    border-radius: 8px;\r\n    margin-top: 1rem;\r\n    white-space: pre-wrap;\r\n    overflow-x: auto;\r\n    max-height: 70vh;\r\n    overflow-y: auto;\r\n    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);\r\n}\r\n\r\n.terminal-input-container {\r\n    display: flex;\r\n    margin-top: 1rem;\r\n    background-color: #000;\r\n    border-radius: 8px;\r\n    padding: 0.5rem;\r\n    align-items: center;\r\n}\r\n\r\n.prompt {\r\n    color: #0f0;\r\n    margin-right: 0.5rem;\r\n    font-family: 'Courier New', monospace;\r\n}\r\n\r\n.terminal-input {\r\n    background-color: transparent;\r\n    border: none;\r\n    color: #0f0;\r\n    font-family: 'Courier New', monospace;\r\n    flex-grow: 1;\r\n    outline: none;\r\n    font-size: 1rem;\r\n}\r\n\r\n.history-item {\r\n    margin-bottom: 0.5rem;\r\n    line-height: 1.4;\r\n}\r\n\r\n.command {\r\n    color: #0ff;\r\n    font-weight: bold;\r\n}\r\n\r\n.response {\r\n    color: #0f0;\r\n}\r\n\r\n.error {\r\n    color: #f00;\r\n}\r\n\r\n.terminal-title {\r\n    color: #0f0;\r\n    font-family: 'Courier New', monospace;\r\n    margin-bottom: 0.5rem;\r\n    font-weight: bold;\r\n    text-align: center;\r\n    padding: 0.5rem;\r\n    background-color: rgba(0, 255, 0, 0.1);\r\n    border-radius: 4px;\r\n}\r\n\r\n.terminal-container {\r\n    margin-top: 2rem;\r\n}\r\n\r\n.terminal-actions {\r\n    display: flex;\r\n    justify-content: space-between;\r\n    margin-top: 1rem;\r\n}\r\n\r\n.terminal-actions button {\r\n    background-color: #000;\r\n    color: #0f0;\r\n    border: 1px solid #0f0;\r\n    padding: 0.5rem 1rem;\r\n    border-radius: 4px;\r\n    cursor: pointer;\r\n    font-family: 'Courier New', monospace;\r\n    transition: all 0.2s ease;\r\n}\r\n\r\n.terminal-actions button:hover {\r\n    background-color: #0f0;\r\n    color: #000;\r\n}\r\n\r\n/* Blinking cursor effect */\r\n@keyframes blink {\r\n    0%, 100% { opacity: 1; }\r\n    50% { opacity: 0; }\r\n}\r\n\r\n.cursor {\r\n    display: inline-block;\r\n    width: 8px;\r\n    height: 16px;\r\n    background-color: #0f0;\r\n    margin-left: 2px;\r\n    animation: blink 1s infinite;\r\n    vertical-align: middle;\r\n}"
+        }
+    ]
+}

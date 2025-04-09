@@ -787,28 +787,6 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
     }
 });
 
-// Endpoint do wykonywania komend
-app.post('/cmd/execute', express.json(), (req, res) => {
-    const { command } = req.body;
-    
-    if (!command) {
-        return res.status(400).json({ error: 'Brak komendy do wykonania' });
-    }
-    
-    console.log(`Executing command: ${command}`);
-    
-    // Wykonaj komendę
-    exec(command, { cwd: __dirname }, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Command error: ${error.message}`);
-            return res.json({ error: `${stderr || error.message}` });
-        }
-        
-        console.log(`Command output: ${stdout}`);
-        res.json({ output: stdout || 'Komenda wykonana (brak wyjścia)' });
-    });
-});
-
 // Upewnij się, że folder pliki istnieje
 const plikiDir = path.join(__dirname, 'pliki');
 if (!fs.existsSync(plikiDir)) {

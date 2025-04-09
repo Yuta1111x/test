@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with YutAi</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="chat.css">
+</head>
+<body>
+    <div class="container fade-in">
+        <h1>Chat with YutAi</h1>
+        
+        <div class="chat-container">
+            <div class="chat-header">
+                <span>YutAi Assistant</span>
+            </div>
+            
+            <div id="chat-messages" class="chat-messages">
+                <div class="message bot-message">
+                    <div>Hello! I'm YutAi. How can I help you today?</div>
+                    <div class="message-time">12:00</div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="input-row">
+                    <div class="input-wrapper">
+                        <textarea id="user-input" placeholder="Type your message here..." rows="1"></textarea>
+                    </div>
+                    <button id="send-button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                
+                <div class="image-upload-container">
+                    <label for="image-upload" class="image-upload-label">
+                        <i class="fas fa-image"></i> Add Image
+                    </label>
+                    <input type="file" id="image-upload" accept="image/*">
+                    
+                    <div class="image-preview-container">
+                        <img id="image-preview" src="" alt="Preview">
+                        <button id="remove-image">×</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="loading-indicator" class="loading-indicator">
+            <div class="loading-spinner"></div>
+            <span>Processing your request...</span>
+        </div>
+        
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="/" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+    
+    <script src="chat.js"></script>
+</body>
+</html>

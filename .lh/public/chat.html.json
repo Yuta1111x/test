@@ -1,0 +1,18 @@
+{
+    "sourceFile": "public/chat.html",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1744134587435,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1744134587435,
+            "name": "Commit-0",
+            "content": "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"UTF-8\">\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n    <title>Chat with YutAi</title>\r\n    <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap\">\r\n    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\">\r\n    <link rel=\"stylesheet\" href=\"styles.css\">\r\n    <link rel=\"stylesheet\" href=\"chat.css\">\r\n</head>\r\n<body>\r\n    <div class=\"container fade-in\">\r\n        <h1>Chat with YutAi</h1>\r\n        \r\n        <div class=\"chat-container\">\r\n            <div class=\"chat-header\">\r\n                <span>YutAi Assistant</span>\r\n            </div>\r\n            \r\n            <div id=\"chat-messages\" class=\"chat-messages\">\r\n                <div class=\"message bot-message\">\r\n                    <div>Hello! I'm YutAi. How can I help you today?</div>\r\n                    <div class=\"message-time\">12:00</div>\r\n                </div>\r\n            </div>\r\n            \r\n            <div class=\"chat-input-container\">\r\n                <div class=\"input-row\">\r\n                    <div class=\"input-wrapper\">\r\n                        <textarea id=\"user-input\" placeholder=\"Type your message here...\" rows=\"1\"></textarea>\r\n                    </div>\r\n                    <button id=\"send-button\">\r\n                        <i class=\"fas fa-paper-plane\"></i>\r\n                    </button>\r\n                </div>\r\n                \r\n                <div class=\"image-upload-container\">\r\n                    <label for=\"image-upload\" class=\"image-upload-label\">\r\n                        <i class=\"fas fa-image\"></i> Add Image\r\n                    </label>\r\n                    <input type=\"file\" id=\"image-upload\" accept=\"image/*\">\r\n                    \r\n                    <div class=\"image-preview-container\">\r\n                        <img id=\"image-preview\" src=\"\" alt=\"Preview\">\r\n                        <button id=\"remove-image\">×</button>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n        \r\n        <div id=\"loading-indicator\" class=\"loading-indicator\">\r\n            <div class=\"loading-spinner\"></div>\r\n            <span>Processing your request...</span>\r\n        </div>\r\n        \r\n        <div style=\"text-align: center; margin-top: 1rem;\">\r\n            <a href=\"/\" class=\"btn btn-secondary\">Back to Home</a>\r\n        </div>\r\n    </div>\r\n    \r\n    <script src=\"chat.js\"></script>\r\n</body>\r\n</html>"
+        }
+    ]
+}

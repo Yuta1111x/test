@@ -1,0 +1,110 @@
+/* Terminal Styles */
+.terminal {
+    background-color: #000;
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    max-height: 70vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.terminal-input-container {
+    display: flex;
+    margin-top: 1rem;
+    background-color: #000;
+    border-radius: 8px;
+    padding: 0.5rem;
+    align-items: center;
+}
+
+.prompt {
+    color: #0f0;
+    margin-right: 0.5rem;
+    font-family: 'Courier New', monospace;
+}
+
+.terminal-input {
+    background-color: transparent;
+    border: none;
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    flex-grow: 1;
+    outline: none;
+    font-size: 1rem;
+}
+
+.history-item {
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.command {
+    color: #0ff;
+    font-weight: bold;
+}
+
+.response {
+    color: #0f0;
+}
+
+.error {
+    color: #f00;
+}
+
+.terminal-title {
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 0.5rem;
+    background-color: rgba(0, 255, 0, 0.1);
+    border-radius: 4px;
+}
+
+.terminal-container {
+    margin-top: 2rem;
+}
+
+.terminal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.terminal-actions button {
+    background-color: #000;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    transition: all 0.2s ease;
+}
+
+.terminal-actions button:hover {
+    background-color: #0f0;
+    color: #000;
+}
+
+/* Blinking cursor effect */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background-color: #0f0;
+    margin-left: 2px;
+    animation: blink 1s infinite;
+    vertical-align: middle;
+}

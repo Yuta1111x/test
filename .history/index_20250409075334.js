@@ -658,133 +658,240 @@ app.get('/terminal', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'terminal.html'));
 });
 
-// Add API endpoint for Gemini with image support
-app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
-    try {
-        const userMessage = req.body.message || '';
+// Upewnij się, że folder pliki istnieje
+const plikiDir = path.join(__dirname, 'pliki');
+if (!fs.existsSync(plikiDir)) {
+    fs.mkdirSync(plikiDir);
+}
 
-        // Podstawowa instrukcja dla modelu
-        let instruction = "Odpowiadaj zawsze w języku polskim, bez względu na język zapytania.";
-
-        const fullMessage = instruction + " " + userMessage;
-
-        let apiRequestBody = {
-            contents: [
-                {
-                    parts: [
-                        {
-                            text: fullMessage
-                        }
-                    ]
-                }
-            ],
-            generationConfig: {
-                temperature: 0.7,
-                topK: 40,
-                topP: 0.95,
-                maxOutputTokens: 8192
+// Sekretna strona z terminalem
+app.get('/cmd', (req, res) => {
+    res.send(`
+    <html>
+    <head>
+        <title>Terminal</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${modernStyles}
+        <style>
+            .terminal {
+                background-color: #000;
+                color: #0f0;
+                font-family: 'Courier New', monospace;
+                padding: 1rem;
+                border-radius: 8px;
+                margin-top: 1rem;
+                white-space: pre-wrap;
+                overflow-x: auto;
+                max-height: 70vh;
+                min-height: 500px;
+                overflow-y: auto;
             }
-        };
-
-        // If image is present, add it to the API request
-        if (req.file) {
-            const imagePath = path.join(__dirname, req.file.path);
-            const imageBuffer = fs.readFileSync(imagePath);
-            const base64Image = imageBuffer.toString('base64');
-
-            // Modify the request to include image
-            apiRequestBody.contents[0].parts = [
-                {
-                    text: fullMessage || "Opisz to zdjęcie w języku polskim"
-                },
-                {
-                    inlineData: {
-                        mimeType: req.file.mimetype,
-                        data: base64Image
+            
+            .command-form {
+                display: flex;
+                gap: 10px;
+                margin-top: 1rem;
+            }
+            
+            .command-input {
+                flex: 1;
+                background-color: #111;
+                color: #0f0;
+                font-family: 'Courier New', monospace;
+            }
+            
+            .history-item {
+                margin-bottom: 10px;
+                border-bottom: 1px solid #333;
+                padding-bottom: 10px;
+            }
+            
+            .command {
+                color: #0f0;
+                font-weight: bold;
+            }
+            
+            .output {
+                color: #fff;
+            }
+            
+            .error {
+                color: #f00;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container fade-in">
+            <h1>Terminal</h1>
+            
+            <div class="header-actions">
+                <div>
+                    <a href="/" class="btn btn-secondary">Powrót do strony głównej</a>
+                    <button id="clearHistoryBtn" class="btn btn-danger">Wyczyść historię</button>
+                </div>
+            </div>
+            
+            <div class="terminal" id="terminal"></div>
+            
+            <form class="command-form" id="commandForm">
+                <input type="text" name="command" placeholder="Wpisz komendę..." class="command-input" required autofocus>
+                <button type="submit" class="btn btn-primary">Wykonaj</button>
+            </form>
+        </div>
+        
+        <script>
+            const terminal = document.getElementById('terminal');
+            const commandForm = document.getElementById('commandForm');
+            const commandInput = commandForm.querySelector('input[name="command"]');
+            
+            // Command history for arrow key navigation
+            let commandHistory = JSON.parse(localStorage.getItem('commandInputHistory') || '[]');
+            let historyIndex = -1;
+            
+            // Load command history from localStorage
+            function loadCommandHistory() {
+                const savedHistory = localStorage.getItem('terminalHistory');
+                if (savedHistory) {
+                    terminal.innerHTML = savedHistory;
+                } else {
+                    // Default welcome message if no history
+                    terminal.innerHTML = '<span class="output">Terminal gotowy. Wpisz komendę i naciśnij "Wykonaj".</span>\n\n';
+                }
+                // Scroll to bottom
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+            
+            // Save command history to localStorage
+            function saveCommandHistory() {
+                localStorage.setItem('terminalHistory', terminal.innerHTML);
+            }
+            
+            // Save input command history for arrow navigation
+            function saveInputHistory(command) {
+                // Don't add empty commands or duplicates of the last command
+                if (command && (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== command)) {
+                    commandHistory.push(command);
+                    // Keep only the last 50 commands
+                    if (commandHistory.length > 50) {
+                        commandHistory.shift();
+                    }
+                    localStorage.setItem('commandInputHistory', JSON.stringify(commandHistory));
+                }
+                // Reset the history index
+                historyIndex = -1;
+            }
+            
+            // Load history when page loads
+            loadCommandHistory();
+            
+            // Clear history button functionality
+            document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+                if (confirm('Czy na pewno chcesz wyczyścić całą historię komend?')) {
+                    // Clear the terminal
+                    terminal.innerHTML = '';
+                    
+                    // Add welcome message
+                    const welcomeSpan = document.createElement('span');
+                    welcomeSpan.className = 'output';
+                    welcomeSpan.textContent = 'Terminal gotowy. Historia została wyczyszczona.';
+                    terminal.appendChild(welcomeSpan);
+                    terminal.appendChild(document.createTextNode('\n\n'));
+                    
+                    saveCommandHistory();
+                    // Also clear input history
+                    commandHistory = [];
+                    localStorage.setItem('commandInputHistory', JSON.stringify(commandHistory));
+                }
+            });
+            
+            // Add keyboard event listener for command history navigation
+            commandInput.addEventListener('keydown', (e) => {
+                // Up arrow key
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (commandHistory.length > 0) {
+                        historyIndex = Math.min(historyIndex + 1, commandHistory.length - 1);
+                        commandInput.value = commandHistory[commandHistory.length - 1 - historyIndex];
                     }
                 }
-            ];
-        }
-
-        // Determine the appropriate model based on whether an image is included
-        const apiModel = req.file ? 'gemini-1.5-pro-latest' : 'gemini-1.5-flash-latest';
-
-        const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/${apiModel}:generateContent?key=${GEMINI_API_KEY}`,
-            apiRequestBody,
-            {
-                headers: {
-                    'Content-Type': 'application/json'
+                // Down arrow key
+                else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (historyIndex > 0) {
+                        historyIndex--;
+                        commandInput.value = commandHistory[commandHistory.length - 1 - historyIndex];
+                    } else {
+                        historyIndex = -1;
+                        commandInput.value = '';
+                    }
                 }
-            }
-        );
-
-        // Extract the AI's response text
-        let aiReply = response.data.candidates[0].content.parts[0].text;
-
-        // Format code blocks properly
-        // Replace markdown code blocks with styled HTML code containers
-        aiReply = aiReply.replace(/\`\`\`(.*)\n([\s\S]*?)\`\`\`/g, function (match, language, code) {
-            // Escape HTML in the code content
-            const escapedCode = code
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
-
-            // Determine language display name
-            let displayLang = 'Code';
-            if (language) {
-                if (language === 'c++' || language === 'cpp') displayLang = 'C++';
-                else if (language === 'js') displayLang = 'JavaScript';
-                else displayLang = language.charAt(0).toUpperCase() + language.slice(1);
-            }
-
-            return '<div class="code-container">' +
-                '<div class="code-header">' +
-                '<span>' + displayLang + '</span>' +
-                '</div>' +
-                '<pre class="code-block"><code>' + escapedCode + '</code></pre>' +
-                '<div class="code-footer">' +
-                '<div class="mini-counter"><i class="fas fa-code"></i> kod</div>' +
-                '</div>' +
-                '</div>';
-        });
-
-        // If image was uploaded temporarily, delete it after processing
-        if (req.file) {
-            fs.unlink(path.join(__dirname, req.file.path), (err) => {
-                if (err) console.error('Error deleting temporary image:', err);
             });
-        }
-
-        res.json({ reply: aiReply });
-    } catch (error) {
-        console.error('Error calling Gemini API:', error);
-
-        // More detailed error handling
-        let errorMessage = 'Przepraszam, wystąpił błąd. Spróbuj ponownie później.';
-
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.error('API Error Response:', error.response.data);
-            console.error('Status:', error.response.status);
-
-            if (error.response.status === 400) {
-                errorMessage = 'Przepraszam, nie mogę przetworzyć tego zapytania. Spróbuj inaczej sformułować pytanie.';
-            } else if (error.response.status === 429) {
-                errorMessage = 'Przekroczono limit zapytań do API. Proszę spróbować ponownie za chwilę.';
-            }
-        } else if (error.request) {
-            // The request was made but no response was received
-            console.error('No response received:', error.request);
-            errorMessage = 'Nie udało się połączyć z serwerem AI. Sprawdź swoje połączenie internetowe.';
-        }
-
-        res.status(500).json({
-            error: 'Failed to get response from Gemini',
-            reply: errorMessage
-        });
-    }
+            
+            commandForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(commandForm);
+                const command = formData.get('command');
+                
+                if (!command.trim()) return; // Don't process empty commands
+                
+                // Save to input history for arrow key navigation
+                saveInputHistory(command);
+                
+                // Create a new history item element
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = \`<span class="command">$ ${command}</span>\n\`;
+                terminal.appendChild(historyItem);
+                
+                try {
+                    const response = await fetch('/cmd/execute', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ command })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.error) {
+                        const errorSpan = document.createElement('span');
+                        errorSpan.className = 'error';
+                        errorSpan.textContent = result.error;
+                        historyItem.appendChild(document.createTextNode('\n'));
+                        historyItem.appendChild(errorSpan);
+                    } else {
+                        const outputSpan = document.createElement('span');
+                        outputSpan.className = 'output';
+                        outputSpan.textContent = result.output;
+                        historyItem.appendChild(document.createTextNode('\n'));
+                        historyItem.appendChild(outputSpan);
+                    }
+                } catch (error) {
+                    const errorSpan = document.createElement('span');
+                    errorSpan.className = 'error';
+                    errorSpan.textContent = \`Błąd połączenia: ${error.message}\`;
+                    historyItem.appendChild(document.createTextNode('\n'));
+                    historyItem.appendChild(errorSpan);
+                }
+                
+                // Przewiń terminal na dół
+                terminal.scrollTop = terminal.scrollHeight;
+                
+                // Save command history to localStorage
+                saveCommandHistory();
+                
+                // Wyczyść pole formularza
+                commandForm.reset();
+                
+                // Focus the input field again
+                commandInput.focus();
+            });
+        </script>
+    </body>
+    </html>
+    `);
 });
 
 // Endpoint do wykonywania komend
@@ -808,11 +915,5 @@ app.post('/cmd/execute', express.json(), (req, res) => {
         res.json({ output: stdout || 'Komenda wykonana (brak wyjścia)' });
     });
 });
-
-// Upewnij się, że folder pliki istnieje
-const plikiDir = path.join(__dirname, 'pliki');
-if (!fs.existsSync(plikiDir)) {
-    fs.mkdirSync(plikiDir);
-}
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

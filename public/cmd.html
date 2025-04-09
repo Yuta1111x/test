@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="terminal.css">
+</head>
+<body>
+    <div class="container fade-in">
+        <h1>Terminal</h1>
+        
+        <div class="terminal-container">
+            <div class="terminal-title">Command Line Interface</div>
+            
+            <div id="terminal" class="terminal">
+                <div class="history-item">
+                    <span class="response">Welcome to the Terminal. Type 'help' to see available commands.</span>
+                </div>
+            </div>
+            
+            <div class="terminal-input-container">
+                <span class="prompt">$</span>
+                <input type="text" id="terminal-input" class="terminal-input" placeholder="Type a command..." autofocus>
+            </div>
+            
+            <div class="terminal-actions">
+                <button id="clear-terminal">Clear Terminal</button>
+                <a href="/" class="btn btn-secondary">Back to Home</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="terminal.js"></script>
+</body>
+</html>
