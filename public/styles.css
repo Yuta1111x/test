@@ -7,6 +7,7 @@
 }
 
 :root {
+    /* Domyślne wartości dla ciemnego motywu */
     --bg-dark: #121212;
     --bg-card: #1e1e2d;
     --accent-primary: #6366f1;
@@ -16,11 +17,58 @@
     --text-muted: #9ca3af;
     --border-color: #2d2d3d;
     --danger: #ef4444;
+    --body-bg-gradient-1: #121212;
+    --body-bg-gradient-2: #1a1a2e;
+}
+
+/* Jasny motyw */
+[data-theme="light"] {
+    --bg-dark: #f5f5f5;
+    --bg-card: #ffffff;
+    --accent-primary: #6366f1;
+    --accent-secondary: #8b5cf6;
+    --text-primary: #1e1e2d;
+    --text-secondary: #4b5563;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --danger: #ef4444;
+    --body-bg-gradient-1: #f5f5f5;
+    --body-bg-gradient-2: #e5e7eb;
+}
+
+/* Niebieski motyw */
+[data-theme="blue"] {
+    --bg-dark: #0f172a;
+    --bg-card: #1e293b;
+    --accent-primary: #3b82f6;
+    --accent-secondary: #60a5fa;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --danger: #ef4444;
+    --body-bg-gradient-1: #0f172a;
+    --body-bg-gradient-2: #1e293b;
+}
+
+/* Fioletowy motyw */
+[data-theme="purple"] {
+    --bg-dark: #2e1065;
+    --bg-card: #4c1d95;
+    --accent-primary: #a855f7;
+    --accent-secondary: #d946ef;
+    --text-primary: #f5f3ff;
+    --text-secondary: #ddd6fe;
+    --text-muted: #c4b5fd;
+    --border-color: #7e22ce;
+    --danger: #ef4444;
+    --body-bg-gradient-1: #2e1065;
+    --body-bg-gradient-2: #4c1d95;
 }
 
 body {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #121212 0%, #1a1a2e 100%);
+    background: linear-gradient(135deg, var(--body-bg-gradient-1) 0%, var(--body-bg-gradient-2) 100%);
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
@@ -142,4 +190,25 @@ a {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* Kontrolki motywu */
+.theme-selector-container {
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.theme-selector {
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    margin: 0 auto;
+    cursor: pointer;
+}
+
+.theme-selector option {
+    background: var(--bg-card);
+    color: var(--text-primary);
 }

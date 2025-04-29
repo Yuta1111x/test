@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,22 +13,32 @@
     <div class="container fade-in">
         <h1>Chat with YutAi</h1>
         
+        <div class="theme-controls">
+            <select id="theme-selector" class="theme-selector">
+                <option value="dark">Ciemny motyw</option>
+                <option value="light">Jasny motyw</option>
+                <option value="blue">Niebieski motyw</option>
+                <option value="purple">Fioletowy motyw</option>
+            </select>
+            
+            <button onclick="clearChatHistory()" class="btn btn-secondary clear-history-btn">
+                <i class="fas fa-trash-alt"></i> Wyczyść historię
+            </button>
+        </div>
+        
         <div class="chat-container">
             <div class="chat-header">
                 <span>YutAi Assistant</span>
             </div>
             
             <div id="chat-messages" class="chat-messages">
-                <div class="message bot-message">
-                    <div>Hello! I'm YutAi. How can I help you today?</div>
-                    <div class="message-time">12:00</div>
-                </div>
+                <!-- Historia czatu będzie wczytana przez JavaScript -->
             </div>
             
             <div class="chat-input-container">
                 <div class="input-row">
                     <div class="input-wrapper">
-                        <textarea id="user-input" placeholder="Type your message here..." rows="1"></textarea>
+                        <textarea id="user-input" placeholder="Wpisz swoją wiadomość tutaj..." rows="1"></textarea>
                     </div>
                     <button id="send-button">
                         <i class="fas fa-paper-plane"></i>
@@ -37,12 +47,12 @@
                 
                 <div class="image-upload-container">
                     <label for="image-upload" class="image-upload-label">
-                        <i class="fas fa-image"></i> Add Image
+                        <i class="fas fa-image"></i> Dodaj obraz
                     </label>
                     <input type="file" id="image-upload" accept="image/*">
                     
                     <div class="image-preview-container">
-                        <img id="image-preview" src="" alt="Preview">
+                        <img id="image-preview" src="" alt="Podgląd">
                         <button id="remove-image">×</button>
                     </div>
                 </div>
@@ -51,13 +61,44 @@
         
         <div id="loading-indicator" class="loading-indicator">
             <div class="loading-spinner"></div>
-            <span>Processing your request...</span>
+            <span>Przetwarzanie twojego zapytania...</span>
         </div>
         
         <div style="text-align: center; margin-top: 1rem;">
-            <a href="/" class="btn btn-secondary">Back to Home</a>
+            <a href="/" class="btn btn-secondary">Powrót do strony głównej</a>
         </div>
     </div>
+    
+    <script>
+        // Funkcja do kopiowania treści bloku kodu
+        function copyCode(elementId) {
+            const codeBlock = document.getElementById(elementId);
+            if (!codeBlock) return;
+            
+            const text = codeBlock.textContent;
+            
+            // Kopiowanie do schowka
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    // Znajdź przycisk i zmień jego tekst na sukces
+                    const button = document.querySelector(`button[onclick="copyCode('${elementId}')"]`);
+                    if (button) {
+                        const originalHTML = button.innerHTML;
+                        button.innerHTML = '<i class="fas fa-check"></i> Skopiowano!';
+                        button.style.background = 'rgba(16, 185, 129, 0.2)';  // zielone tło
+                        
+                        // Po 2 sekundach przywróć oryginalny wygląd
+                        setTimeout(() => {
+                            button.innerHTML = originalHTML;
+                            button.style.background = '';
+                        }, 2000);
+                    }
+                })
+                .catch(err => {
+                    console.error('Błąd podczas kopiowania kodu:', err);
+                });
+        }
+    </script>
     
     <script src="chat.js"></script>
 </body>

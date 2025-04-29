@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = 'AIzaSyAP1EOpnlAhNRh9MI41v8EHtyRGylNR_bA';
 
 // Flag to control chat functionality
-const chatEnabled = false; // Set to true to enable chat, false to show "Coming Soon"
+const chatEnabled = true; // Chat jest zawsze aktywny
 
 // Upewnij się, że istnieje folder temp
 const tempDir = path.join(__dirname, 'temp');
@@ -419,12 +419,90 @@ app.get('/', (req, res) => {
     <title>Files Portal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     ${modernStyles}
+    <style>
+        .main-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+            margin-top: 2.5rem;
+        }
+        
+        .chat-btn {
+            background: linear-gradient(to right, #9333ea, #3b82f6);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(147, 51, 234, 0.3);
+        }
+        
+        .chat-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(147, 51, 234, 0.4);
+        }
+        
+        .chat-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .file-btn {
+            background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .file-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
+        }
+        
+        @media (max-width: 640px) {
+            .main-actions {
+                gap: 1rem;
+            }
+            
+            .chat-btn, .file-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 0.8rem 1rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container fade-in">
         <h1>Welcome to Files Portal</h1>
-        <div style="text-align: center; margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; align-items: center;">
-            <a href="/panel" class="btn btn-primary">Go to File Management</a>
+        <div class="main-actions">
+            <a href="/panel" class="btn file-btn">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.825a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31L.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3zm-8.322.12C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139z"/>
+                    </svg>
+                    Zarządzanie plikami
+                </span>
+            </a>
+            ${chatEnabled ? `
+            <a href="/chat" class="btn chat-btn">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 1a5 5 0 0 0-5 5v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a6 6 0 1 1 12 0v6a2.5 2.5 0 0 1-2.5 2.5H9.366a1 1 0 0 1-.866.5h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 .866.5H11.5A1.5 1.5 0 0 0 13 12h-1a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1V6a5 5 0 0 0-5-5z"/>
+                    </svg>
+                    Porozmawiaj z YutAi
+                </span>
+            </a>
+            ` : ''}
         </div>
     </div>
 </body>
@@ -715,11 +793,84 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
     
     try {
         const userMessage = req.body.message || '';
+        const conversationContext = req.body.context || '';
+        let userFacts = {};
+        
+        // Pobierz fakty użytkownika, jeśli zostały przesłane
+        if (req.body.userFacts) {
+            try {
+                userFacts = JSON.parse(req.body.userFacts);
+                console.log('Otrzymane fakty użytkownika:', userFacts);
+            } catch (e) {
+                console.error('Błąd parsowania faktów użytkownika:', e);
+            }
+        }
 
-        // Podstawowa instrukcja dla modelu
-        let instruction = "Odpowiadaj zawsze w języku polskim, bez względu na język zapytania.";
+        // Obsługa podstawowych obliczeń matematycznych
+        const askMathRegex = /ile\s+to\s+(\d+\s*[\+\-\*\/]\s*\d+)/i;
+        const askMatch = userMessage.match(askMathRegex);
+        
+        if (askMatch) {
+            const expression = askMatch[1].replace(/\s+/g, '');
+            
+            // Sprawdź, czy mamy zapisany fakt dla tego wyrażenia
+            if (userFacts && userFacts[expression]) {
+                // Jeśli mamy fakt, zwróć zapisaną przez użytkownika wartość
+                console.log(`Odpowiadam z faktu: ${expression} = ${userFacts[expression]}`);
+                return res.json({ 
+                    reply: `${expression} = ${userFacts[expression]}`
+                });
+            } else {
+                // Bezpieczne obliczanie wyrażenia matematycznego
+                let result = null;
+                
+                try {
+                    // Obsługa tylko najprostszych operacji
+                    if (expression.includes('+')) {
+                        const parts = expression.split('+');
+                        result = parseFloat(parts[0]) + parseFloat(parts[1]);
+                    } else if (expression.includes('-')) {
+                        const parts = expression.split('-');
+                        result = parseFloat(parts[0]) - parseFloat(parts[1]);
+                    } else if (expression.includes('*')) {
+                        const parts = expression.split('*');
+                        result = parseFloat(parts[0]) * parseFloat(parts[1]);
+                    } else if (expression.includes('/')) {
+                        const parts = expression.split('/');
+                        result = parseFloat(parts[0]) / parseFloat(parts[1]);
+                    }
+                    
+                    if (result !== null) {
+                        console.log(`Obliczono standardowy wynik: ${expression} = ${result}`);
+                        return res.json({
+                            reply: `${expression} = ${result}`
+                        });
+                    }
+                } catch (e) {
+                    console.error('Błąd podczas obliczania wyrażenia:', e);
+                }
+            }
+        }
 
-        const fullMessage = instruction + " " + userMessage;
+        // Zmodyfikowana instrukcja dla modelu - bardziej wyważona
+        let instruction = "Odpowiadaj zawsze w języku polskim, bez względu na język zapytania. Jesteś pomocnym asystentem, który wykonuje prośby użytkownika. Bądź przyjazny i pomocny. Przy obliczeniach matematycznych stosuj standardowe zasady, CHYBA ŻE użytkownik wyraźnie wskazał inne wartości. Nie przyjmuj domysłów jako faktów. Tylko gdy użytkownik wyraźnie stwierdzi, że 'X = Y', przyjmij to jako fakt w dalszej rozmowie.";
+
+        // Dodaj fakty użytkownika do instrukcji
+        if (userFacts && Object.keys(userFacts).length > 0) {
+            instruction += "\n\nUżytkownik podał następujące fakty, które musisz uznać za prawdziwe:\n";
+            
+            for (const [expression, result] of Object.entries(userFacts)) {
+                instruction += `- ${expression} = ${result}\n`;
+            }
+        }
+
+        // Dodaj pełen kontekst rozmowy, jeśli istnieje
+        let fullMessage = '';
+        if (conversationContext) {
+            fullMessage = instruction + "\n\nHistoria konwersacji:\n" + conversationContext + "\n\nUżytkownik: " + userMessage;
+        } else {
+            fullMessage = instruction + " " + userMessage;
+        }
 
         let apiRequestBody = {
             contents: [
@@ -732,7 +883,7 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
                 }
             ],
             generationConfig: {
-                temperature: 0.7,
+                temperature: 0.9, // Zwiększona kreatywność
                 topK: 40,
                 topP: 0.95,
                 maxOutputTokens: 8192
@@ -791,11 +942,19 @@ app.post('/api/chat', tempUpload.single('image'), async (req, res) => {
                 else displayLang = language.charAt(0).toUpperCase() + language.slice(1);
             }
 
+            // Generate a unique ID for this code block
+            const blockId = 'code-block-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+
             return '<div class="code-container">' +
                 '<div class="code-header">' +
                 '<span>' + displayLang + '</span>' +
+                '<div class="code-actions">' +
+                '<button class="copy-btn" onclick="copyCode(\'' + blockId + '\')">' +
+                '<i class="fas fa-copy"></i> Kopiuj' +
+                '</button>' +
                 '</div>' +
-                '<pre class="code-block"><code>' + escapedCode + '</code></pre>' +
+                '</div>' +
+                '<pre class="code-block"><code id="' + blockId + '">' + escapedCode + '</code></pre>' +
                 '<div class="code-footer">' +
                 '<div class="mini-counter"><i class="fas fa-code"></i> kod</div>' +
                 '</div>' +
