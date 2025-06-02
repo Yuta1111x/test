@@ -1027,4 +1027,89 @@ if (!fs.existsSync(plikiDir)) {
     fs.mkdirSync(plikiDir);
 }
 
+// 1) GET /api/files – lista pełnych URL-i do pobrania plików (bez welcome.txt)
+app.get('/api/files', (req, res) => {
+    fs.readdir(plikiDir, (err, files) => {
+        if (err) {
+            console.error('Błąd czytania katalogu pliki:', err);
+            return res.status(500).json({ error: 'Nie udało się przeczytać folderu pliki.' });
+        }
+        const filtered = files.filter(f => f !== 'welcome.txt');
+        const host = req.protocol + '://' + req.get('host');
+        const links = filtered.map(f => `${host}/files/${encodeURIComponent(f)}`);
+        return res.json({ links });
+    });
+});
+
+// 2) GET /api/send-all – zwraca wszystkie pliki Base64 (bez welcome.txt)
+app.get('/api/send-all', (req, res) => {
+    fs.readdir(plikiDir, (err, files) => {
+        if (err) {
+            console.error('Błąd czytania katalogu pliki:', err);
+            return res.status(500).json({ error: 'Nie udało się przeczytać folderu pliki.' });
+        }
+        const toSend = files.filter(f => f !== 'welcome.txt');
+        const result = [];
+        let pending = toSend.length;
+        if (pending === 0) {
+            return res.json({ files: [] });
+        }
+        toSend.forEach(filename => {
+            const fullPath = path.join(plikiDir, filename);
+            fs.readFile(fullPath, (readErr, data) => {
+                if (readErr) {
+                    console.error(`Błąd czytania pliku ${filename}:`, readErr);
+                    pending--;
+                    if (pending === 0) res.json({ files: result });
+                    return;
+                }
+                result.push({
+                    name: filename,
+                    content: data.toString('base64'),
+                    size: data.length // dodajemy rozmiar, aby klient mógł porównać
+                });
+                pending--;
+                if (pending === 0) {
+                    return res.json({ files: result });
+                }
+            });
+        });
+    });
+});
+
+// 3) POST /api/receive-all – przyjmuje JSON z tablicą plików Base64 od RPi
+//    sprawdza, czy plik już istnieje po rozmiarze; jeśli nie, zapisuje do plikiDir
+app.post('/api/receive-all', (req, res) => {
+    const incoming = Array.isArray(req.body.files) ? req.body.files : [];
+    if (incoming.length === 0) {
+        return res.status(400).json({ error: 'Brak plików do wysłania.' });
+    }
+    let saved = [], skipped = [];
+    incoming.forEach(entry => {
+        const { name, content, size } = entry;
+        if (!name || !content) return;
+        const targetPath = path.join(plikiDir, name);
+        const buffer = Buffer.from(content, 'base64');
+
+        // Sprawdź, czy istnieje plik o tej samej nazwie
+        if (fs.existsSync(targetPath)) {
+            const stat = fs.statSync(targetPath);
+            if (stat.size === buffer.length) {
+                skipped.push(name);
+                return; // pomijamy identyczne
+            }
+        }
+        // Zapisz (nadpisze, jeśli istniał, ale inny rozmiar)
+        fs.writeFileSync(targetPath, buffer);
+        saved.push(name);
+    });
+    return res.json({ saved, skipped });
+});
+
+// === KONIEC FRAGMENTU ===
+
+// Pamiętaj, aby po wklejeniu tego fragmentu zrestartować serwer:
+//    node index.js
+
+
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
