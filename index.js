@@ -8,7 +8,7 @@ const { exec } = require('child_process'); // Przywrócone dla funkcji /cmd
 // require('dotenv').config(); // Usunięte
 const https = require('https');
 
-const url = 'https://yutai-z7c6.onrender.com/';
+const url = 'https://vercel-pi-lyart.vercel.app/api/';
 
 function pingUrl() {
     const startTime = Date.now();
