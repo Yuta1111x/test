@@ -6,7 +6,28 @@ const axios = require('axios'); // Add axios for API requests
 const marked = require('marked'); // Biblioteka do formatowania markdown
 const { exec } = require('child_process'); // Przywrócone dla funkcji /cmd
 // require('dotenv').config(); // Usunięte
+const https = require('https');
 
+const url = 'https://yutai-z7c6.onrender.com/';
+
+function pingUrl() {
+    const startTime = Date.now();
+    
+    https.get(url, (res) => {
+        const responseTime = Date.now() - startTime;
+        console.log(`[${new Date().toISOString()}] Ping successful - Status: ${res.statusCode}, Response time: ${responseTime}ms`);
+    }).on('error', (err) => {
+        console.error(`[${new Date().toISOString()}] Ping failed:`, err.message);
+    });
+}
+
+// Wykonaj pierwszy ping od razu
+pingUrl();
+
+// Ustaw interval na 30 sekund (30000 ms)
+setInterval(pingUrl, 30000);
+
+console.log('Started pinging', url, 'every 30 seconds...');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = 'AIzaSyAP1EOpnlAhNRh9MI41v8EHtyRGylNR_bA';
