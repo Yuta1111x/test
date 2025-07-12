@@ -6,10 +6,6 @@ const multer = require('multer');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Create temp dir if needed
-const tempDir = path.join(__dirname, 'temp');
-if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
-
 // Setup file storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -20,13 +16,6 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => cb(null, file.originalname)
 });
 const upload = multer({ storage, limits: { fileSize: 1024 * 1024 * 1024 } });
-
-// Setup temp storage
-const tempStorage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, tempDir),
-    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
-});
-const tempUpload = multer({ storage: tempStorage, limits: { fileSize: 1024 * 1024 * 1024 } });
 
 // Middleware
 app.use(express.json({ limit: '1024mb' }));
