@@ -2,11 +2,11 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
+const fetch = require('node-fetch');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Setup file storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const plikiDir = path.join(__dirname, 'pliki');
@@ -17,10 +17,16 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 1024 * 1024 * 1024 } });
 
-// Middleware
 app.use(express.json({ limit: '1024mb' }));
 app.use(express.urlencoded({ limit: '1024mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
+
+setInterval(() => {
+    fetch('https://vercel-pi-lyart.vercel.app/api/index')
+        .then(res => res.text())
+        .then(data => console.log('Request OK:', data.length))
+        .catch(err => console.error('Request error:', err));
+}, 5000);
 
 // Extensive styling
 const modernStyles = `
